@@ -17,8 +17,8 @@ const Index = () => {
         </p>
       </section>
 
-      <AnnouncementsBoard />
       <TopPerformerBanner />
+      <AnnouncementsBoard />
     </div>
   );
 };
