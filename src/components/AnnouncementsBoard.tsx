@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useAnnouncements, type AnnouncementCategory } from "@/hooks/useContent";
+import { useAnnouncements, useAnnouncementsRealtime, type AnnouncementCategory } from "@/hooks/useContent";
 import { Megaphone, Calendar, AlertTriangle, CheckCircle2, Bell, BellRing } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
