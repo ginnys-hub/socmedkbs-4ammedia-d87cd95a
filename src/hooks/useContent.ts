@@ -1,5 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
+/** Subscribe to realtime announcement changes and refresh the cache. */
+export const useAnnouncementsRealtime = () => {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const channel = supabase
+      .channel("announcements-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "announcements" },
+        () => {
+          qc.invalidateQueries({ queryKey: ["announcements"] });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
+};
 
 export type AnnouncementCategory = "update" | "reminder" | "issue" | "resolved" | "important";
 
