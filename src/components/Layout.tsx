@@ -13,8 +13,8 @@ const Layout = () => {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="container flex h-16 items-center justify-between">
-          <NavLink to="/" className="flex items-center gap-2 font-bold text-lg">
-            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-hero shadow-soft">
+          <NavLink to="/" className="flex items-center gap-2 font-bold text-lg hover-scale">
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-hero shadow-soft animate-float">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </span>
             <span>
@@ -43,7 +43,7 @@ const Layout = () => {
           </nav>
         </div>
       </header>
-      <main className="container py-8">
+      <main className="container py-8 animate-fade-in">
         <Outlet />
       </main>
       <footer className="container py-8 text-center text-sm text-muted-foreground">
