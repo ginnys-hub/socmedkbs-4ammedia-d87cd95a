@@ -1,4 +1,5 @@
-import { Trophy, Sparkles } from "lucide-react";
+import { Trophy, Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useScorecardWeeks, useScorecardEntries } from "@/hooks/useContent";
 import {
   attendancePct,
@@ -50,11 +51,20 @@ const TopPerformerBanner = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <Stat label="Overall" value={`${Number(top.overall_pct).toFixed(2)}%`} />
-          <Stat label="Quality" value={`${qualityPct(top).toFixed(0)}%`} />
-          <Stat label="Attendance" value={`${attendancePct(top).toFixed(0)}%`} />
-          <Stat label="Achievement" value={`${achievementPct(top).toFixed(0)}%`} />
+        <div className="flex flex-col items-stretch gap-3 sm:items-end">
+          <div className="flex flex-wrap gap-3">
+            <Stat label="Overall" value={`${Number(top.overall_pct).toFixed(2)}%`} />
+            <Stat label="Quality" value={`${qualityPct(top).toFixed(0)}%`} />
+            <Stat label="Attendance" value={`${attendancePct(top).toFixed(0)}%`} />
+            <Stat label="Achievement" value={`${achievementPct(top).toFixed(0)}%`} />
+          </div>
+          <Link
+            to="/scorecards"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-soft transition-transform hover:-translate-y-0.5"
+          >
+            View all scores
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>
