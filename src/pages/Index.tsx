@@ -12,8 +12,8 @@ const Index = () => {
           Welcome to the team KBS ✨
         </h1>
         <p className="mt-3 max-w-2xl text-primary-foreground/90">
-          Your home base for announcements, scorecards, and macros — everything
-          the social media team needs in one cheerful spot.
+          Everything our social media team needs in one place — announcements,
+          scorecards, and macros. Stay sharp, stay synced, stay caffeinated.
         </p>
       </section>
 
