@@ -56,14 +56,14 @@ const Macros = () => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl bg-gradient-bubblegum p-6 sm:p-8 shadow-pop">
+      <div className="rounded-3xl bg-gradient-bubblegum p-6 sm:p-8 shadow-pop animate-scale-in">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-soft">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-soft animate-float">
             <MessageSquareText className="h-5 w-5 text-bubblegum-foreground" />
           </span>
           <div>
-            <h1 className="text-3xl font-extrabold text-bubblegum-foreground">Macros</h1>
-            <p className="text-sm text-bubblegum-foreground/80">
+            <h1 className="text-3xl font-extrabold text-bubblegum-foreground animate-fade-in-down">Macros</h1>
+            <p className="text-sm text-bubblegum-foreground/80 animate-fade-in stagger-1">
               Pre-written responses, filtered by brand. One click to copy.
             </p>
           </div>
@@ -111,10 +111,11 @@ const Macros = () => {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {filtered.map((m) => (
+          {filtered.map((m, i) => (
             <article
               key={m.id}
-              className="flex flex-col rounded-3xl bg-card p-5 shadow-soft transition-transform hover:-translate-y-1"
+              style={{ animationDelay: `${i * 50}ms` }}
+              className="flex flex-col rounded-3xl bg-card p-5 shadow-soft animate-fade-in hover-lift"
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span
