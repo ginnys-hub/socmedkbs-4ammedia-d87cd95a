@@ -181,7 +181,10 @@ const AnnouncementsAdmin = () => {
           {(data ?? []).map((a) => (
             <div key={a.id} className="rounded-2xl bg-card p-4 shadow-soft flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{a.posted_on}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{a.posted_on}</span>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase">{a.category}</span>
+                </div>
                 <h3 className="font-bold">{a.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 whitespace-pre-line">{a.body}</p>
               </div>
