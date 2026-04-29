@@ -49,6 +49,7 @@ const catMeta = (key: string) =>
   CATEGORIES.find((c) => c.key === key) ?? CATEGORIES[0];
 
 const AnnouncementsBoard = () => {
+  useAnnouncementsRealtime();
   const { data: announcements, isLoading } = useAnnouncements();
   const [filter, setFilter] = useState<CatKey | "all">("all");
 
