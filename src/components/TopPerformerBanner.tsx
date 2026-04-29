@@ -1,15 +1,30 @@
 import { Trophy, Sparkles } from "lucide-react";
+import { useScorecardWeeks, useScorecardEntries } from "@/hooks/useContent";
 import {
-  SCORECARDS,
-  topPerformer,
   attendancePct,
   qualityPct,
   achievementPct,
-} from "@/data/scorecards";
+} from "@/lib/scorecardMath";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TopPerformerBanner = () => {
-  const latestWeek = SCORECARDS[0];
-  const top = topPerformer(latestWeek);
+  const { data: weeks } = useScorecardWeeks();
+  const currentWeek =
+    weeks?.find((w) => w.is_current) ?? weeks?.[0];
+  const { data: entries } = useScorecardEntries(currentWeek?.id);
+
+  if (!currentWeek || !entries) {
+    return <Skeleton className="h-40 rounded-3xl" />;
+  }
+
+  const top = [...entries].sort((a, b) => b.overall_pct - a.overall_pct)[0];
+  if (!top) {
+    return (
+      <section className="rounded-3xl bg-gradient-sunny p-6 shadow-pop text-sunny-foreground">
+        <p className="font-bold">No scorecard entries yet for {currentWeek.label}.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="relative overflow-hidden rounded-3xl bg-gradient-sunny p-6 sm:p-8 shadow-pop">
@@ -30,13 +45,13 @@ const TopPerformerBanner = () => {
               {top.member} 🎉
             </h3>
             <p className="text-sm font-medium text-sunny-foreground/80">
-              {latestWeek.label} · most efficient CSR
+              {currentWeek.label} · most efficient CSR
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Stat label="Overall" value={`${top.overallPct.toFixed(2)}%`} />
+          <Stat label="Overall" value={`${Number(top.overall_pct).toFixed(2)}%`} />
           <Stat label="Quality" value={`${qualityPct(top).toFixed(0)}%`} />
           <Stat label="Attendance" value={`${attendancePct(top).toFixed(0)}%`} />
           <Stat label="Achievement" value={`${achievementPct(top).toFixed(0)}%`} />
