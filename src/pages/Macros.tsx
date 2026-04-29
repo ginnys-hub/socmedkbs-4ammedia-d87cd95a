@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { BRANDS, MACROS, type Brand } from "@/data/macros";
+import { BRANDS, type Brand } from "@/data/brands";
+import { useMacros } from "@/hooks/useContent";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Copy, Check, Search, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -15,12 +17,20 @@ const brandStyles: Record<Brand, string> = {
 };
 
 const Macros = () => {
+  const { data: macros, isLoading } = useMacros();
   const [activeBrand, setActiveBrand] = useState<Brand | "All">("All");
   const [query, setQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // Distinct brands seen in data + the canonical list
+  const brandsToShow = useMemo(() => {
+    const set = new Set<string>(BRANDS as readonly string[]);
+    (macros ?? []).forEach((m) => set.add(m.brand));
+    return Array.from(set);
+  }, [macros]);
+
   const filtered = useMemo(() => {
-    return MACROS.filter((m) => {
+    return (macros ?? []).filter((m) => {
       const brandOk = activeBrand === "All" || m.brand === activeBrand;
       if (!brandOk) return false;
       if (!query.trim()) return true;
@@ -31,7 +41,7 @@ const Macros = () => {
         m.tags?.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [activeBrand, query]);
+  }, [activeBrand, query, macros]);
 
   const copy = async (id: string, body: string) => {
     try {
@@ -52,9 +62,7 @@ const Macros = () => {
             <MessageSquareText className="h-5 w-5 text-bubblegum-foreground" />
           </span>
           <div>
-            <h1 className="text-3xl font-extrabold text-bubblegum-foreground">
-              Macros
-            </h1>
+            <h1 className="text-3xl font-extrabold text-bubblegum-foreground">Macros</h1>
             <p className="text-sm text-bubblegum-foreground/80">
               Pre-written responses, filtered by brand. One click to copy.
             </p>
@@ -62,7 +70,6 @@ const Macros = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -81,20 +88,24 @@ const Macros = () => {
             label="All"
             tone="bg-primary text-primary-foreground"
           />
-          {BRANDS.map((b) => (
+          {brandsToShow.map((b) => (
             <BrandChip
               key={b}
               active={activeBrand === b}
               onClick={() => setActiveBrand(b)}
               label={b}
-              tone={brandStyles[b]}
+              tone={brandStyles[b] ?? "bg-muted text-foreground"}
             />
           ))}
         </div>
       </div>
 
-      {/* Results */}
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-40 rounded-3xl" />
+          <Skeleton className="h-40 rounded-3xl" />
+        </div>
+      ) : filtered.length === 0 ? (
         <p className="rounded-3xl bg-muted p-8 text-center text-muted-foreground">
           No macros match your filters.
         </p>
@@ -107,7 +118,7 @@ const Macros = () => {
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${brandStyles[m.brand]}`}
+                  className={`rounded-full px-3 py-1 text-xs font-bold ${brandStyles[m.brand] ?? "bg-muted text-foreground"}`}
                 >
                   {m.brand}
                 </span>
@@ -118,13 +129,9 @@ const Macros = () => {
                   className="rounded-full"
                 >
                   {copiedId === m.id ? (
-                    <>
-                      <Check className="mr-1 h-4 w-4" /> Copied
-                    </>
+                    <><Check className="mr-1 h-4 w-4" /> Copied</>
                   ) : (
-                    <>
-                      <Copy className="mr-1 h-4 w-4" /> Copy
-                    </>
+                    <><Copy className="mr-1 h-4 w-4" /> Copy</>
                   )}
                 </Button>
               </div>

@@ -1,5 +1,6 @@
-import { ANNOUNCEMENTS } from "@/data/announcements";
+import { useAnnouncements } from "@/hooks/useContent";
 import { Megaphone, Calendar } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fmtDate = (iso: string) =>
   new Date(iso + "T00:00:00").toLocaleDateString("en-US", {
@@ -16,6 +17,8 @@ const palette = [
 ];
 
 const AnnouncementsBoard = () => {
+  const { data: announcements, isLoading } = useAnnouncements();
+
   return (
     <section>
       <div className="mb-5 flex items-center gap-3">
@@ -32,23 +35,34 @@ const AnnouncementsBoard = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {ANNOUNCEMENTS.map((a, i) => (
-          <article
-            key={a.id}
-            className={`rounded-3xl ${palette[i % palette.length]} p-6 shadow-soft transition-transform hover:-translate-y-1`}
-          >
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold">
-              <Calendar className="h-3.5 w-3.5" />
-              {fmtDate(a.date)}
-            </div>
-            <h3 className="mb-2 text-lg font-bold">{a.title}</h3>
-            <p className="whitespace-pre-line text-sm leading-relaxed opacity-90">
-              {a.body}
-            </p>
-          </article>
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-40 rounded-3xl" />
+          <Skeleton className="h-40 rounded-3xl" />
+        </div>
+      ) : !announcements || announcements.length === 0 ? (
+        <p className="rounded-3xl bg-muted p-8 text-center text-muted-foreground">
+          No announcements yet.
+        </p>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {announcements.map((a, i) => (
+            <article
+              key={a.id}
+              className={`rounded-3xl ${palette[i % palette.length]} p-6 shadow-soft transition-transform hover:-translate-y-1`}
+            >
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold">
+                <Calendar className="h-3.5 w-3.5" />
+                {fmtDate(a.posted_on)}
+              </div>
+              <h3 className="mb-2 text-lg font-bold">{a.title}</h3>
+              <p className="whitespace-pre-line text-sm leading-relaxed opacity-90">
+                {a.body}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
