@@ -47,6 +47,16 @@ All colors MUST be HSL.
     --bubblegum: 330 90% 75%;
     --bubblegum-foreground: 330 60% 25%;
 
+    /* Announcement category pastels */
+    --cat-update: 340 95% 85%;
+    --cat-update-foreground: 340 65% 28%;
+    --cat-reminder: 50 100% 82%;
+    --cat-reminder-foreground: 40 70% 25%;
+    --cat-issue: 270 75% 88%;
+    --cat-issue-foreground: 270 55% 30%;
+    --cat-resolved: 140 60% 82%;
+    --cat-resolved-foreground: 145 55% 22%;
+
     --gradient-hero: linear-gradient(135deg, hsl(260 85% 75%), hsl(200 90% 80%), hsl(330 90% 85%));
     --gradient-sunny: linear-gradient(135deg, hsl(45 100% 70%), hsl(25 100% 70%));
     --gradient-mint: linear-gradient(135deg, hsl(160 70% 75%), hsl(190 80% 75%));
