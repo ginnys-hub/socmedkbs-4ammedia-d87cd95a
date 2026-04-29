@@ -47,6 +47,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sunny: { DEFAULT: "hsl(var(--sunny))", foreground: "hsl(var(--sunny-foreground))" },
+        mint: { DEFAULT: "hsl(var(--mint))", foreground: "hsl(var(--mint-foreground))" },
+        sky: { DEFAULT: "hsl(var(--sky))", foreground: "hsl(var(--sky-foreground))" },
+        bubblegum: { DEFAULT: "hsl(var(--bubblegum))", foreground: "hsl(var(--bubblegum-foreground))" },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -63,7 +67,25 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      backgroundImage: {
+        "gradient-hero": "var(--gradient-hero)",
+        "gradient-sunny": "var(--gradient-sunny)",
+        "gradient-mint": "var(--gradient-mint)",
+        "gradient-bubblegum": "var(--gradient-bubblegum)",
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        pop: "var(--shadow-pop)",
+      },
       keyframes: {
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-2deg)" },
+          "50%": { transform: "rotate(2deg)" },
+        },
         "accordion-down": {
           from: {
             height: "0",
