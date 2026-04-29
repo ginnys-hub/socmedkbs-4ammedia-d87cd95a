@@ -14,16 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      announcements: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          posted_on: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          posted_on?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          posted_on?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      macros: {
+        Row: {
+          body: string
+          brand: string
+          created_at: string
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          brand: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          brand?: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      scorecard_entries: {
+        Row: {
+          created_at: string
+          hours_scheduled: number
+          hours_worked: number
+          id: string
+          infractions: number
+          member: string
+          overall_pct: number
+          qa_max: number
+          qa_score: number
+          ticket_actual: number
+          ticket_target: number
+          week_id: string
+          work_ethic_max: number
+          work_ethic_score: number
+        }
+        Insert: {
+          created_at?: string
+          hours_scheduled?: number
+          hours_worked?: number
+          id?: string
+          infractions?: number
+          member: string
+          overall_pct?: number
+          qa_max?: number
+          qa_score?: number
+          ticket_actual?: number
+          ticket_target?: number
+          week_id: string
+          work_ethic_max?: number
+          work_ethic_score?: number
+        }
+        Update: {
+          created_at?: string
+          hours_scheduled?: number
+          hours_worked?: number
+          id?: string
+          infractions?: number
+          member?: string
+          overall_pct?: number
+          qa_max?: number
+          qa_score?: number
+          ticket_actual?: number
+          ticket_target?: number
+          week_id?: string
+          work_ethic_max?: number
+          work_ethic_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorecard_entries_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "scorecard_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorecard_weeks: {
+        Row: {
+          created_at: string
+          id: string
+          is_current: boolean
+          label: string
+          week_of: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          label: string
+          week_of: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          label?: string
+          week_of?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +316,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
