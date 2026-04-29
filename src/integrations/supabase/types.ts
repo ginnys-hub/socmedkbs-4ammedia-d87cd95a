@@ -17,6 +17,7 @@ export type Database = {
       announcements: {
         Row: {
           body: string
+          category: string
           created_at: string
           id: string
           posted_on: string
@@ -25,6 +26,7 @@ export type Database = {
         }
         Insert: {
           body: string
+          category?: string
           created_at?: string
           id?: string
           posted_on?: string
@@ -33,6 +35,7 @@ export type Database = {
         }
         Update: {
           body?: string
+          category?: string
           created_at?: string
           id?: string
           posted_on?: string
