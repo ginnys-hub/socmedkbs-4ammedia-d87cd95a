@@ -118,13 +118,20 @@ const AnnouncementsBoard = () => {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {filtered.map((a) => {
+          {filtered.map((a, i) => {
             const meta = catMeta(a.category);
             const Icon = meta.icon;
+            const cardPalette = [
+              "bg-sky text-sky-foreground",
+              "bg-accent text-accent-foreground",
+              "bg-mint text-mint-foreground",
+              "bg-secondary text-secondary-foreground",
+            ];
+            const cardColor = cardPalette[i % cardPalette.length];
             return (
               <article
                 key={a.id}
-                className={`rounded-3xl ${meta.card} p-6 shadow-soft transition-transform hover:-translate-y-1`}
+                className={`rounded-3xl ${cardColor} p-6 shadow-soft transition-transform hover:-translate-y-1`}
               >
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground">
