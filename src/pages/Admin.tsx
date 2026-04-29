@@ -97,7 +97,7 @@ const AnnouncementsAdmin = () => {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const startNew = () => setEditing({ title: "", body: "", posted_on: today });
+  const startNew = () => setEditing({ title: "", body: "", posted_on: today, category: "update" });
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -109,6 +109,7 @@ const AnnouncementsAdmin = () => {
       title: editing.title.trim(),
       body: editing.body.trim(),
       posted_on: editing.posted_on || today,
+      category: (editing.category as any) || "update",
     };
     const { error } = editing.id
       ? await supabase.from("announcements").update(payload).eq("id", editing.id)
@@ -140,9 +141,23 @@ const AnnouncementsAdmin = () => {
 
       {editing && (
         <form onSubmit={save} className="rounded-3xl bg-card p-6 shadow-soft space-y-4">
-          <div>
-            <Label>Posted on</Label>
-            <Input type="date" value={editing.posted_on ?? today} onChange={(e) => setEditing({ ...editing, posted_on: e.target.value })} className="mt-1 max-w-xs" />
+          <div className="flex flex-wrap gap-4">
+            <div>
+              <Label>Posted on</Label>
+              <Input type="date" value={editing.posted_on ?? today} onChange={(e) => setEditing({ ...editing, posted_on: e.target.value })} className="mt-1 max-w-xs" />
+            </div>
+            <div>
+              <Label>Category</Label>
+              <Select value={(editing.category as string) ?? "update"} onValueChange={(v) => setEditing({ ...editing, category: v as any })}>
+                <SelectTrigger className="mt-1 w-[180px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="update">Update</SelectItem>
+                  <SelectItem value="important">Important</SelectItem>
+                  <SelectItem value="issue">Issue</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div>
             <Label>Title</Label>
@@ -166,7 +181,10 @@ const AnnouncementsAdmin = () => {
           {(data ?? []).map((a) => (
             <div key={a.id} className="rounded-2xl bg-card p-4 shadow-soft flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{a.posted_on}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{a.posted_on}</span>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase">{a.category}</span>
+                </div>
                 <h3 className="font-bold">{a.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 whitespace-pre-line">{a.body}</p>
               </div>

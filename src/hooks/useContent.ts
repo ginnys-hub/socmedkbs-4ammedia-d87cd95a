@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export type AnnouncementCategory = "update" | "issue" | "resolved" | "important";
+
 export type Announcement = {
   id: string;
   title: string;
   body: string;
   posted_on: string;
+  category: AnnouncementCategory;
 };
 
 export type Macro = {
