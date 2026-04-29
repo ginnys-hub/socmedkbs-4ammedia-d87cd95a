@@ -8,9 +8,10 @@ import { toast } from "sonner";
 
 const brandStyles: Record<Brand, string> = {
   "General / All Brands": "bg-sky text-sky-foreground",
-  "Brand A": "bg-bubblegum text-bubblegum-foreground",
-  "Brand B": "bg-mint text-mint-foreground",
-  "Brand C": "bg-sunny text-sunny-foreground",
+  "Oricle Hearing Aids": "bg-bubblegum text-bubblegum-foreground",
+  "Barks No More": "bg-mint text-mint-foreground",
+  "Splash Items": "bg-sunny text-sunny-foreground",
+  "Glabrous Skin": "bg-accent text-accent-foreground",
 };
 
 const Macros = () => {
