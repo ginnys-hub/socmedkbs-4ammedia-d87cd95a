@@ -1,10 +1,15 @@
 import { Trophy, Sparkles } from "lucide-react";
-import { SCORECARDS, topPerformer, composite } from "@/data/scorecards";
+import {
+  SCORECARDS,
+  topPerformer,
+  attendancePct,
+  qualityPct,
+  achievementPct,
+} from "@/data/scorecards";
 
 const TopPerformerBanner = () => {
   const latestWeek = SCORECARDS[0];
   const top = topPerformer(latestWeek);
-  const score = composite(top);
 
   return (
     <section className="relative overflow-hidden rounded-3xl bg-gradient-sunny p-6 sm:p-8 shadow-pop">
@@ -25,16 +30,16 @@ const TopPerformerBanner = () => {
               {top.member} 🎉
             </h3>
             <p className="text-sm font-medium text-sunny-foreground/80">
-              {latestWeek.label}
+              {latestWeek.label} · most efficient CSR
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Stat label="Composite" value={`${score}`} />
-          <Stat label="QA" value={`${top.qa}`} />
-          <Stat label="CSAT" value={`${top.csat}`} />
-          <Stat label="Tickets" value={`${top.tickets}`} />
+          <Stat label="Overall" value={`${top.overallPct.toFixed(2)}%`} />
+          <Stat label="Quality" value={`${qualityPct(top).toFixed(0)}%`} />
+          <Stat label="Attendance" value={`${attendancePct(top).toFixed(0)}%`} />
+          <Stat label="Achievement" value={`${achievementPct(top).toFixed(0)}%`} />
         </div>
       </div>
     </section>

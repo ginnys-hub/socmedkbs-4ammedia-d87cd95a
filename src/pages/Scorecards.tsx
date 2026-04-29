@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
-import { SCORECARDS, composite, TEAM_MEMBERS } from "@/data/scorecards";
+import {
+  SCORECARDS,
+  TEAM_MEMBERS,
+  attendancePct,
+  qualityPct,
+  achievementPct,
+  workEthicPct,
+} from "@/data/scorecards";
 import {
   Select,
   SelectContent,
@@ -30,13 +37,18 @@ const Scorecards = () => {
   const teamChartData = useMemo(
     () =>
       week.entries
-        .map((e) => ({ name: e.member, score: composite(e), qa: e.qa, csat: e.csat }))
-        .sort((a, b) => b.score - a.score),
+        .map((e) => ({
+          name: e.member.split(" ")[0],
+          overall: Math.round(e.overallPct * 10) / 10,
+          quality: Math.round(qualityPct(e) * 10) / 10,
+          achievement: Math.round(achievementPct(e) * 10) / 10,
+        }))
+        .sort((a, b) => b.overall - a.overall),
     [week]
   );
 
   const sortedTop = [...week.entries].sort(
-    (a, b) => composite(b) - composite(a)
+    (a, b) => b.overallPct - a.overallPct
   );
 
   // Individual: history across all weeks
@@ -49,19 +61,17 @@ const Scorecards = () => {
           return e
             ? {
                 week: w.label.split(",")[0],
-                score: composite(e),
-                qa: e.qa,
-                csat: e.csat,
-                tickets: e.tickets,
+                overall: Math.round(e.overallPct * 10) / 10,
+                quality: Math.round(qualityPct(e) * 10) / 10,
+                attendance: Math.round(attendancePct(e) * 10) / 10,
               }
             : null;
         })
         .filter(Boolean) as Array<{
         week: string;
-        score: number;
-        qa: number;
-        csat: number;
-        tickets: number;
+        overall: number;
+        quality: number;
+        attendance: number;
       }>,
     [member]
   );
@@ -131,7 +141,9 @@ const Scorecards = () => {
                   </div>
                   <p className="mt-2 text-2xl font-extrabold">{e.member}</p>
                   <p className="text-sm opacity-80">
-                    Composite {composite(e)} · QA {e.qa} · CSAT {e.csat}
+                    Overall {e.overallPct.toFixed(2)}% · Quality{" "}
+                    {qualityPct(e).toFixed(0)}% · Achievement{" "}
+                    {achievementPct(e).toFixed(0)}%
                   </p>
                 </div>
               );
@@ -139,13 +151,13 @@ const Scorecards = () => {
           </div>
 
           <div className="rounded-3xl bg-card p-6 shadow-soft">
-            <h3 className="mb-4 font-bold">Composite scores — {week.label}</h3>
+            <h3 className="mb-4 font-bold">Overall % — {week.label}</h3>
             <div className="h-72 w-full">
               <ResponsiveContainer>
                 <BarChart data={teamChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis domain={[80, 100]} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis domain={[60, 180]} stroke="hsl(var(--muted-foreground))" />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 12,
@@ -153,34 +165,40 @@ const Scorecards = () => {
                       background: "hsl(var(--card))",
                     }}
                   />
-                  <Bar dataKey="score" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="overall" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl bg-card shadow-soft">
+          <div className="overflow-x-auto rounded-3xl bg-card shadow-soft">
             <table className="w-full text-sm">
               <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="p-3 text-left">Member</th>
-                  <th className="p-3 text-right">QA</th>
-                  <th className="p-3 text-right">CSAT</th>
+                  <th className="p-3 text-right">Attendance</th>
+                  <th className="p-3 text-right">Quality</th>
                   <th className="p-3 text-right">Tickets</th>
-                  <th className="p-3 text-right">Avg Resp (min)</th>
-                  <th className="p-3 text-right">Composite</th>
+                  <th className="p-3 text-right">Achievement</th>
+                  <th className="p-3 text-right">Work Ethic</th>
+                  <th className="p-3 text-right">Infractions</th>
+                  <th className="p-3 text-right">Overall</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedTop.map((e) => (
                   <tr key={e.member} className="border-t border-border">
                     <td className="p-3 font-semibold">{e.member}</td>
-                    <td className="p-3 text-right">{e.qa}</td>
-                    <td className="p-3 text-right">{e.csat}</td>
-                    <td className="p-3 text-right">{e.tickets}</td>
-                    <td className="p-3 text-right">{e.responseTime}</td>
+                    <td className="p-3 text-right">{attendancePct(e).toFixed(2)}%</td>
+                    <td className="p-3 text-right">{qualityPct(e).toFixed(0)}%</td>
+                    <td className="p-3 text-right">
+                      {e.ticketActual}/{e.ticketTarget}
+                    </td>
+                    <td className="p-3 text-right">{achievementPct(e).toFixed(2)}%</td>
+                    <td className="p-3 text-right">{workEthicPct(e).toFixed(0)}%</td>
+                    <td className="p-3 text-right">{e.infractions}</td>
                     <td className="p-3 text-right font-bold text-primary">
-                      {composite(e)}
+                      {e.overallPct.toFixed(2)}%
                     </td>
                   </tr>
                 ))}
@@ -208,7 +226,7 @@ const Scorecards = () => {
 
             <span className="ml-2 text-sm font-semibold">Member:</span>
             <Select value={member} onValueChange={setMember}>
-              <SelectTrigger className="w-[200px] rounded-full bg-card">
+              <SelectTrigger className="w-[220px] rounded-full bg-card">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -223,10 +241,24 @@ const Scorecards = () => {
 
           {memberThisWeek && (
             <div className="grid gap-4 sm:grid-cols-4">
-              <StatCard label="Composite" value={composite(memberThisWeek)} tone="primary" />
-              <StatCard label="QA" value={memberThisWeek.qa} tone="mint" />
-              <StatCard label="CSAT" value={memberThisWeek.csat} tone="bubblegum" />
-              <StatCard label="Tickets" value={memberThisWeek.tickets} tone="sky" />
+              <StatCard label="Overall" value={`${memberThisWeek.overallPct.toFixed(2)}%`} tone="primary" />
+              <StatCard label="Quality" value={`${qualityPct(memberThisWeek).toFixed(0)}%`} tone="mint" />
+              <StatCard label="Attendance" value={`${attendancePct(memberThisWeek).toFixed(2)}%`} tone="bubblegum" />
+              <StatCard label="Achievement" value={`${achievementPct(memberThisWeek).toFixed(2)}%`} tone="sky" />
+            </div>
+          )}
+
+          {memberThisWeek && (
+            <div className="overflow-hidden rounded-3xl bg-card shadow-soft">
+              <table className="w-full text-sm">
+                <tbody>
+                  <Row label="Hours Worked / Scheduled" value={`${memberThisWeek.hoursWorked} / ${memberThisWeek.hoursScheduled}`} />
+                  <Row label="QA Score" value={`${memberThisWeek.qaScore} / ${memberThisWeek.qaMax}`} />
+                  <Row label="Tickets Actual / Target" value={`${memberThisWeek.ticketActual} / ${memberThisWeek.ticketTarget}`} />
+                  <Row label="Work Ethic" value={`${memberThisWeek.workEthicScore} / ${memberThisWeek.workEthicMax}`} />
+                  <Row label="Infractions" value={`${memberThisWeek.infractions}`} />
+                </tbody>
+              </table>
             </div>
           )}
 
@@ -240,7 +272,7 @@ const Scorecards = () => {
                 <LineChart data={memberHistory}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis domain={[80, 100]} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis domain={[60, 180]} stroke="hsl(var(--muted-foreground))" />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 12,
@@ -248,25 +280,9 @@ const Scorecards = () => {
                       background: "hsl(var(--card))",
                     }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="score"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={3}
-                    dot={{ r: 5 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="qa"
-                    stroke="hsl(var(--mint))"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="csat"
-                    stroke="hsl(var(--bubblegum))"
-                    strokeWidth={2}
-                  />
+                  <Line type="monotone" dataKey="overall" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 5 }} />
+                  <Line type="monotone" dataKey="quality" stroke="hsl(var(--mint))" strokeWidth={2} />
+                  <Line type="monotone" dataKey="attendance" stroke="hsl(var(--bubblegum))" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -290,7 +306,7 @@ const StatCard = ({
   tone,
 }: {
   label: string;
-  value: number;
+  value: string;
   tone: keyof typeof toneMap;
 }) => (
   <div className={`rounded-3xl ${toneMap[tone]} p-5 shadow-soft`}>
@@ -299,6 +315,13 @@ const StatCard = ({
     </p>
     <p className="mt-1 text-3xl font-extrabold">{value}</p>
   </div>
+);
+
+const Row = ({ label, value }: { label: string; value: string }) => (
+  <tr className="border-t border-border first:border-t-0">
+    <td className="p-3 text-muted-foreground">{label}</td>
+    <td className="p-3 text-right font-semibold">{value}</td>
+  </tr>
 );
 
 export default Scorecards;
