@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useAnnouncements, type AnnouncementCategory } from "@/hooks/useContent";
-import { Megaphone, Calendar, AlertTriangle, CheckCircle2, Star, Bell } from "lucide-react";
+import { Megaphone, Calendar, AlertTriangle, CheckCircle2, Bell, BellRing } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -18,35 +18,30 @@ const CATEGORIES: {
   label: string;
   icon: typeof Bell;
   card: string;
-  chip: string;
 }[] = [
   {
     key: "update",
     label: "Update",
     icon: Bell,
-    card: "bg-sky text-sky-foreground",
-    chip: "bg-sky text-sky-foreground",
+    card: "bg-cat-update text-cat-update-foreground",
   },
   {
-    key: "important",
-    label: "Important",
-    icon: Star,
-    card: "bg-accent text-accent-foreground",
-    chip: "bg-accent text-accent-foreground",
+    key: "reminder",
+    label: "Reminder",
+    icon: BellRing,
+    card: "bg-cat-reminder text-cat-reminder-foreground",
   },
   {
     key: "issue",
     label: "Issue",
     icon: AlertTriangle,
-    card: "bg-secondary text-secondary-foreground",
-    chip: "bg-secondary text-secondary-foreground",
+    card: "bg-cat-issue text-cat-issue-foreground",
   },
   {
     key: "resolved",
     label: "Resolved",
     icon: CheckCircle2,
-    card: "bg-mint text-mint-foreground",
-    chip: "bg-mint text-mint-foreground",
+    card: "bg-cat-resolved text-cat-resolved-foreground",
   },
 ];
 
@@ -92,7 +87,7 @@ const AnnouncementsBoard = () => {
           onClick={() => setFilter("all")}
           label="All"
           count={counts.all ?? 0}
-          className="bg-muted text-foreground"
+          activeClass="bg-foreground text-background"
         />
         {CATEGORIES.map((c) => (
           <FilterChip
@@ -102,7 +97,7 @@ const AnnouncementsBoard = () => {
             label={c.label}
             icon={c.icon}
             count={counts[c.key] ?? 0}
-            className={c.chip}
+            activeClass={c.card}
           />
         ))}
       </div>
@@ -118,20 +113,13 @@ const AnnouncementsBoard = () => {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {filtered.map((a, i) => {
+          {filtered.map((a) => {
             const meta = catMeta(a.category);
             const Icon = meta.icon;
-            const cardPalette = [
-              "bg-sky text-sky-foreground",
-              "bg-accent text-accent-foreground",
-              "bg-mint text-mint-foreground",
-              "bg-secondary text-secondary-foreground",
-            ];
-            const cardColor = cardPalette[i % cardPalette.length];
             return (
               <article
                 key={a.id}
-                className={`rounded-3xl ${cardColor} p-6 shadow-soft transition-transform hover:-translate-y-1`}
+                className={`rounded-3xl ${meta.card} p-6 shadow-soft transition-transform hover:-translate-y-1`}
               >
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground">
@@ -164,14 +152,14 @@ const FilterChip = ({
   label,
   icon: Icon,
   count,
-  className,
+  activeClass,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   icon?: typeof Bell;
   count: number;
-  className?: string;
+  activeClass?: string;
 }) => (
   <button
     type="button"
@@ -179,7 +167,7 @@ const FilterChip = ({
     className={cn(
       "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold transition-all",
       active
-        ? `${className} shadow-soft scale-105`
+        ? `${activeClass} shadow-soft scale-105`
         : "bg-muted text-muted-foreground hover:bg-muted/70"
     )}
   >

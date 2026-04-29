@@ -152,9 +152,10 @@ const AnnouncementsAdmin = () => {
                 <SelectTrigger className="mt-1 w-[180px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="update">Update</SelectItem>
-                  <SelectItem value="important">Important</SelectItem>
+                  <SelectItem value="reminder">Reminder</SelectItem>
                   <SelectItem value="issue">Issue</SelectItem>
                   <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="important">Important</SelectItem>
                 </SelectContent>
               </Select>
             </div>

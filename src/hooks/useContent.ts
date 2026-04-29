@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AnnouncementCategory = "update" | "issue" | "resolved" | "important";
+export type AnnouncementCategory = "update" | "reminder" | "issue" | "resolved" | "important";
 
 export type Announcement = {
   id: string;

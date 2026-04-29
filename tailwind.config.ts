@@ -51,6 +51,10 @@ export default {
         mint: { DEFAULT: "hsl(var(--mint))", foreground: "hsl(var(--mint-foreground))" },
         sky: { DEFAULT: "hsl(var(--sky))", foreground: "hsl(var(--sky-foreground))" },
         bubblegum: { DEFAULT: "hsl(var(--bubblegum))", foreground: "hsl(var(--bubblegum-foreground))" },
+        "cat-update": { DEFAULT: "hsl(var(--cat-update))", foreground: "hsl(var(--cat-update-foreground))" },
+        "cat-reminder": { DEFAULT: "hsl(var(--cat-reminder))", foreground: "hsl(var(--cat-reminder-foreground))" },
+        "cat-issue": { DEFAULT: "hsl(var(--cat-issue))", foreground: "hsl(var(--cat-issue-foreground))" },
+        "cat-resolved": { DEFAULT: "hsl(var(--cat-resolved))", foreground: "hsl(var(--cat-resolved-foreground))" },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
