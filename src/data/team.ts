@@ -8,4 +8,4 @@ export const TEAM_MEMBERS = [
   "Rande Delima",
 ] as const;
 
-export type TeamMember = typeof TEAM_MEMBERS[number];
+export type TeamMember = string;
