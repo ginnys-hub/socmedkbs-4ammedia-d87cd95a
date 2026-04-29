@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useAnnouncements, type AnnouncementCategory } from "@/hooks/useContent";
+import { useAnnouncements, useAnnouncementsRealtime, type AnnouncementCategory } from "@/hooks/useContent";
 import { Megaphone, Calendar, AlertTriangle, CheckCircle2, Bell, BellRing } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -49,6 +49,7 @@ const catMeta = (key: string) =>
   CATEGORIES.find((c) => c.key === key) ?? CATEGORIES[0];
 
 const AnnouncementsBoard = () => {
+  useAnnouncementsRealtime();
   const { data: announcements, isLoading } = useAnnouncements();
   const [filter, setFilter] = useState<CatKey | "all">("all");
 
