@@ -116,16 +116,16 @@ const Scorecards = () => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl bg-gradient-mint p-6 sm:p-8 shadow-pop">
+      <div className="rounded-3xl bg-gradient-mint p-6 sm:p-8 shadow-pop animate-scale-in">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-soft">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-soft animate-float">
             <BarChart3 className="h-5 w-5 text-mint-foreground" />
           </span>
           <div>
-            <h1 className="text-3xl font-extrabold text-mint-foreground">
+            <h1 className="text-3xl font-extrabold text-mint-foreground animate-fade-in-down">
               Scorecard History
             </h1>
-            <p className="text-sm text-mint-foreground/80">
+            <p className="text-sm text-mint-foreground/80 animate-fade-in stagger-1">
               Track team & individual performance week over week
             </p>
           </div>
@@ -171,7 +171,8 @@ const Scorecards = () => {
                 return (
                   <div
                     key={e.id}
-                    className={`rounded-3xl ${styles[i]} p-5 shadow-soft`}
+                    style={{ animationDelay: `${i * 100}ms` }}
+                    className={`rounded-3xl ${styles[i]} p-5 shadow-soft animate-scale-in hover-lift`}
                   >
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
                       <Trophy className="h-4 w-4" />#{i + 1}
@@ -223,8 +224,8 @@ const Scorecards = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedTop.map((e) => (
-                    <tr key={e.id} className="border-t border-border">
+                  {sortedTop.map((e, i) => (
+                    <tr key={e.id} style={{ animationDelay: `${i * 40}ms` }} className="border-t border-border animate-fade-in transition-colors hover:bg-muted/40">
                       <td className="p-3 font-semibold">{e.member}</td>
                       <td className="p-3 text-right">{attendancePct(e).toFixed(2)}%</td>
                       <td className="p-3 text-right">{qualityPct(e).toFixed(0)}%</td>
@@ -350,7 +351,7 @@ const StatCard = ({
   value: string;
   tone: keyof typeof toneMap;
 }) => (
-  <div className={`rounded-3xl ${toneMap[tone]} p-5 shadow-soft`}>
+  <div className={`rounded-3xl ${toneMap[tone]} p-5 shadow-soft animate-scale-in hover-lift`}>
     <p className="text-xs font-bold uppercase tracking-wider opacity-80">
       {label}
     </p>
