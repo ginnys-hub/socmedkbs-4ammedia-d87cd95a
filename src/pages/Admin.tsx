@@ -361,6 +361,8 @@ const ScorecardsAdmin = () => {
   const addWeek = async (e: FormEvent) => {
     e.preventDefault();
     if (!newWeek.week_of || !newWeek.label.trim()) return toast.error("Both fields required");
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { data, error } = await supabase
       .from("scorecard_weeks")
       .insert({ week_of: newWeek.week_of, label: newWeek.label.trim() })
@@ -369,27 +371,30 @@ const ScorecardsAdmin = () => {
     if (error) return toast.error(error.message);
     toast.success("Week added");
     setNewWeek({ week_of: "", label: "" });
-    qc.invalidateQueries({ queryKey: ["scorecard_weeks"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
     if (data) setSelectedWeekId(data.id);
   };
 
   const setCurrent = async (id: string) => {
-    // Clear all then set this one
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error: e1 } = await supabase.from("scorecard_weeks").update({ is_current: false }).neq("id", "00000000-0000-0000-0000-000000000000");
     if (e1) return toast.error(e1.message);
     const { error: e2 } = await supabase.from("scorecard_weeks").update({ is_current: true }).eq("id", id);
     if (e2) return toast.error(e2.message);
     toast.success("Set as current week");
-    qc.invalidateQueries({ queryKey: ["scorecard_weeks"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
   };
 
   const deleteWeek = async (id: string) => {
     if (!confirm("Delete this week and all its entries?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("scorecard_weeks").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["scorecard_weeks"] });
-    qc.invalidateQueries({ queryKey: ["scorecard_entries_all"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
     setSelectedWeekId("");
   };
 
