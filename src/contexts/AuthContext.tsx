@@ -28,15 +28,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const { data } = await runWithBackendRetry(() =>
-        supabase
+      const { data } = await runWithBackendRetry(async () => {
+        return await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", uid)
           .eq("role", "admin")
           .maybeSingle()
-          .throwOnError()
-      );
+          .throwOnError();
+      });
 
       setIsAdmin(!!data);
     } catch (error) {
