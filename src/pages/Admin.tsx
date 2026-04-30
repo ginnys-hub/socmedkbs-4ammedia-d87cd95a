@@ -3,6 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { isTransientBackendError, runWithBackendRetry, waitForRetry } from "@/lib/backendRetry";
 
 /** Ensure a valid session exists before performing a mutation.
  *  Prevents RLS errors when the session is still hydrating or has expired. */
@@ -51,36 +52,24 @@ import {
   Home,
 } from "lucide-react";
 
-const TRANSIENT_BACKEND_ERROR_PATTERNS = [
-  /schema cache/i,
-  /recovery mode/i,
-  /not accepting connections/i,
-  /connection.*closed/i,
-  /try again/i,
-];
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const isTransientBackendError = (error: { message?: string } | null | undefined) => {
-  const message = error?.message ?? "";
-  return TRANSIENT_BACKEND_ERROR_PATTERNS.some((pattern) => pattern.test(message));
-};
-
 async function runAdminRequest(
   request: () => any,
   maxAttempts = 3
 ): Promise<{ data: any; error: { message?: string } | null }> {
   let lastResult: { data: any; error: { message?: string } | null } = { data: null, error: null };
+
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     try {
       lastResult = await request();
+      if (!lastResult.error) return lastResult;
     } catch (err: any) {
       lastResult = { data: null, error: { message: err?.message ?? String(err) } };
     }
-    if (!lastResult.error) return lastResult;
+
     if (!isTransientBackendError(lastResult.error) || attempt === maxAttempts - 1) return lastResult;
-    await wait(500 * (attempt + 1));
+    await waitForRetry(700 * (attempt + 1));
   }
+
   return lastResult;
 }
 
@@ -420,11 +409,13 @@ const ScorecardsAdmin = () => {
     if (!newWeek.week_of || !newWeek.label.trim()) return toast.error("Both fields required");
     const sessionErr = await ensureSession();
     if (sessionErr) return toast.error(sessionErr);
-    const { data, error } = await supabase
-      .from("scorecard_weeks")
-      .insert({ week_of: newWeek.week_of, label: newWeek.label.trim() })
-      .select()
-      .single();
+    const { data, error } = await runAdminRequest(() =>
+      supabase
+        .from("scorecard_weeks")
+        .insert({ week_of: newWeek.week_of, label: newWeek.label.trim() })
+        .select()
+        .single()
+    );
     if (error) return toast.error(error.message);
     toast.success("Week added");
     setNewWeek({ week_of: "", label: "" });
@@ -435,9 +426,13 @@ const ScorecardsAdmin = () => {
   const setCurrent = async (id: string) => {
     const sessionErr = await ensureSession();
     if (sessionErr) return toast.error(sessionErr);
-    const { error: e1 } = await supabase.from("scorecard_weeks").update({ is_current: false }).neq("id", "00000000-0000-0000-0000-000000000000");
+    const { error: e1 } = await runAdminRequest(() =>
+      supabase.from("scorecard_weeks").update({ is_current: false }).neq("id", "00000000-0000-0000-0000-000000000000")
+    );
     if (e1) return toast.error(e1.message);
-    const { error: e2 } = await supabase.from("scorecard_weeks").update({ is_current: true }).eq("id", id);
+    const { error: e2 } = await runAdminRequest(() =>
+      supabase.from("scorecard_weeks").update({ is_current: true }).eq("id", id)
+    );
     if (e2) return toast.error(e2.message);
     toast.success("Set as current week");
     await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
@@ -447,7 +442,7 @@ const ScorecardsAdmin = () => {
     if (!confirm("Delete this week and all its entries?")) return;
     const sessionErr = await ensureSession();
     if (sessionErr) return toast.error(sessionErr);
-    const { error } = await supabase.from("scorecard_weeks").delete().eq("id", id);
+    const { error } = await runAdminRequest(() => supabase.from("scorecard_weeks").delete().eq("id", id));
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
@@ -549,9 +544,11 @@ const EntriesEditor = ({ weekId, entries }: { weekId: string; entries: Scorecard
       infractions: Number(draft.infractions) || 0,
       overall_pct: Number(draft.overall_pct) || 0,
     };
-    const { error } = draft.id
-      ? await supabase.from("scorecard_entries").update(payload).eq("id", draft.id)
-      : await supabase.from("scorecard_entries").insert(payload);
+    const { error } = await runAdminRequest(() =>
+      draft.id
+        ? supabase.from("scorecard_entries").update(payload).eq("id", draft.id)
+        : supabase.from("scorecard_entries").insert(payload)
+    );
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setDraft(null);
@@ -563,7 +560,7 @@ const EntriesEditor = ({ weekId, entries }: { weekId: string; entries: Scorecard
     if (!confirm("Delete this entry?")) return;
     const sessionErr = await ensureSession();
     if (sessionErr) return toast.error(sessionErr);
-    const { error } = await supabase.from("scorecard_entries").delete().eq("id", id);
+    const { error } = await runAdminRequest(() => supabase.from("scorecard_entries").delete().eq("id", id));
     if (error) return toast.error(error.message);
     await qc.refetchQueries({ queryKey: ["scorecard_entries", weekId] });
     await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
