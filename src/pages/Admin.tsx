@@ -122,6 +122,8 @@ const AnnouncementsAdmin = () => {
       toast.error("Title and body are required");
       return;
     }
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const payload = {
       title: editing.title.trim(),
       body: editing.body.trim(),
@@ -134,15 +136,17 @@ const AnnouncementsAdmin = () => {
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
-    qc.invalidateQueries({ queryKey: ["announcements"] });
+    await qc.refetchQueries({ queryKey: ["announcements"] });
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this announcement?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("announcements").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["announcements"] });
+    await qc.refetchQueries({ queryKey: ["announcements"] });
   };
 
   return (
