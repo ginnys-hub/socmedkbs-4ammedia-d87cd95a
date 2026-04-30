@@ -279,24 +279,32 @@ const MacrosAdmin = () => {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
+    console.log("[Admin] Save macro clicked", editing);
     if (!editing?.title?.trim() || !editing?.body?.trim() || !editing?.brand) {
       toast.error("Brand, title and body are required");
       return;
     }
     const sessionErr = await ensureSession();
-    if (sessionErr) return toast.error(sessionErr);
+    if (sessionErr) {
+      console.warn("[Admin] Session check failed:", sessionErr);
+      return toast.error(sessionErr);
+    }
     const payload = {
       brand: editing.brand,
       title: editing.title.trim(),
       body: editing.body.trim(),
       tags: editing.tags ?? [],
     };
+    console.log("[Admin] Submitting macro payload", payload);
     const { error } = await runAdminRequest(() =>
       editing.id
         ? supabase.from("macros").update(payload).eq("id", editing.id)
         : supabase.from("macros").insert(payload)
     );
-    if (error) return toast.error(error.message);
+    if (error) {
+      console.error("[Admin] Macro save error:", error);
+      return toast.error(error.message ?? "Save failed");
+    }
     toast.success("Saved");
     setEditing(null);
     await qc.refetchQueries({ queryKey: ["macros"] });
