@@ -11,8 +11,17 @@ import Macros from "./pages/Macros.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import { isTransientBackendError } from "@/lib/backendRetry";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => isTransientBackendError(error) && failureCount < 4,
+      retryDelay: (attemptIndex) => 700 * (attemptIndex + 1),
+      refetchOnWindowFocus: true,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { runWithBackendRetry } from "@/lib/backendRetry";
 
 type AuthState = {
   user: User | null;
@@ -25,13 +26,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAdmin(false);
       return;
     }
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", uid)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+
+    try {
+      const { data } = await runWithBackendRetry(async () => {
+        return await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", uid)
+          .eq("role", "admin")
+          .maybeSingle()
+          .throwOnError();
+      });
+
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error("[Auth] Admin role lookup failed", error);
+      setIsAdmin(false);
+    }
   };
 
   useEffect(() => {
