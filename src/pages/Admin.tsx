@@ -476,6 +476,8 @@ const EntriesEditor = ({ weekId, entries }: { weekId: string; entries: Scorecard
   const save = async (e: FormEvent) => {
     e.preventDefault();
     if (!draft?.member) return toast.error("Pick a member");
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const payload = {
       week_id: weekId,
       member: draft.member,
@@ -496,16 +498,18 @@ const EntriesEditor = ({ weekId, entries }: { weekId: string; entries: Scorecard
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setDraft(null);
-    qc.invalidateQueries({ queryKey: ["scorecard_entries", weekId] });
-    qc.invalidateQueries({ queryKey: ["scorecard_entries_all"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries", weekId] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this entry?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("scorecard_entries").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["scorecard_entries", weekId] });
-    qc.invalidateQueries({ queryKey: ["scorecard_entries_all"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries", weekId] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
   };
 
   return (
