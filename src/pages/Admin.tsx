@@ -51,6 +51,38 @@ import {
   Home,
 } from "lucide-react";
 
+const TRANSIENT_BACKEND_ERROR_PATTERNS = [
+  /schema cache/i,
+  /recovery mode/i,
+  /not accepting connections/i,
+  /connection.*closed/i,
+  /try again/i,
+];
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isTransientBackendError = (error: { message?: string } | null | undefined) => {
+  const message = error?.message ?? "";
+  return TRANSIENT_BACKEND_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+};
+
+const runAdminRequest = async <T,>(
+  request: () => Promise<{ data?: T | null; error: { message?: string } | null }>,
+  maxAttempts = 3
+) => {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const result = await request();
+    if (!result.error) return result;
+    if (!isTransientBackendError(result.error) || attempt === maxAttempts - 1) return result;
+    await wait(500 * (attempt + 1));
+  }
+
+  return {
+    data: null,
+    error: { message: "The backend is still waking up. Please try again in a moment." },
+  };
+};
+
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
 
@@ -130,9 +162,11 @@ const AnnouncementsAdmin = () => {
       posted_on: editing.posted_on || today,
       category: (editing.category as any) || "update",
     };
-    const { error } = editing.id
-      ? await supabase.from("announcements").update(payload).eq("id", editing.id)
-      : await supabase.from("announcements").insert(payload);
+    const { error } = await runAdminRequest(() =>
+      editing.id
+        ? supabase.from("announcements").update(payload).eq("id", editing.id)
+        : supabase.from("announcements").insert(payload)
+    );
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
@@ -143,7 +177,9 @@ const AnnouncementsAdmin = () => {
     if (!confirm("Delete this announcement?")) return;
     const sessionErr = await ensureSession();
     if (sessionErr) return toast.error(sessionErr);
-    const { error } = await supabase.from("announcements").delete().eq("id", id);
+    const { error } = await runAdminRequest(() =>
+      supabase.from("announcements").delete().eq("id", id)
+    );
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     await qc.refetchQueries({ queryKey: ["announcements"] });
@@ -246,9 +282,11 @@ const MacrosAdmin = () => {
       body: editing.body.trim(),
       tags: editing.tags ?? [],
     };
-    const { error } = editing.id
-      ? await supabase.from("macros").update(payload).eq("id", editing.id)
-      : await supabase.from("macros").insert(payload);
+    const { error } = await runAdminRequest(() =>
+      editing.id
+        ? supabase.from("macros").update(payload).eq("id", editing.id)
+        : supabase.from("macros").insert(payload)
+    );
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
@@ -259,7 +297,9 @@ const MacrosAdmin = () => {
     if (!confirm("Delete this macro?")) return;
     const sessionErr = await ensureSession();
     if (sessionErr) return toast.error(sessionErr);
-    const { error } = await supabase.from("macros").delete().eq("id", id);
+    const { error } = await runAdminRequest(() =>
+      supabase.from("macros").delete().eq("id", id)
+    );
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     await qc.refetchQueries({ queryKey: ["macros"] });
