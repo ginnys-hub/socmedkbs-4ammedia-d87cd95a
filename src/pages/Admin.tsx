@@ -3,7 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { isTransientBackendError, runWithBackendRetry, waitForRetry } from "@/lib/backendRetry";
+import { isTransientBackendError, waitForRetry } from "@/lib/backendRetry";
 
 /** Ensure a valid session exists before performing a mutation.
  *  Prevents RLS errors when the session is still hydrating or has expired. */
