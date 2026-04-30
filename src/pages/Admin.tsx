@@ -66,22 +66,23 @@ const isTransientBackendError = (error: { message?: string } | null | undefined)
   return TRANSIENT_BACKEND_ERROR_PATTERNS.some((pattern) => pattern.test(message));
 };
 
-const runAdminRequest = async <T,>(
-  request: () => PromiseLike<{ data?: T | null; error: { message?: string } | null }>,
+async function runAdminRequest(
+  request: () => any,
   maxAttempts = 3
-) => {
+): Promise<{ data: any; error: { message?: string } | null }> {
+  let lastResult: { data: any; error: { message?: string } | null } = { data: null, error: null };
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const result = await request();
-    if (!result.error) return result;
-    if (!isTransientBackendError(result.error) || attempt === maxAttempts - 1) return result;
+    try {
+      lastResult = await request();
+    } catch (err: any) {
+      lastResult = { data: null, error: { message: err?.message ?? String(err) } };
+    }
+    if (!lastResult.error) return lastResult;
+    if (!isTransientBackendError(lastResult.error) || attempt === maxAttempts - 1) return lastResult;
     await wait(500 * (attempt + 1));
   }
-
-  return {
-    data: null,
-    error: { message: "The backend is still waking up. Please try again in a moment." },
-  };
-};
+  return lastResult;
+}
 
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
