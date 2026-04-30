@@ -151,24 +151,32 @@ const AnnouncementsAdmin = () => {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
+    console.log("[Admin] Save announcement clicked", editing);
     if (!editing?.title?.trim() || !editing?.body?.trim()) {
       toast.error("Title and body are required");
       return;
     }
     const sessionErr = await ensureSession();
-    if (sessionErr) return toast.error(sessionErr);
+    if (sessionErr) {
+      console.warn("[Admin] Session check failed:", sessionErr);
+      return toast.error(sessionErr);
+    }
     const payload = {
       title: editing.title.trim(),
       body: editing.body.trim(),
       posted_on: editing.posted_on || today,
       category: (editing.category as any) || "update",
     };
+    console.log("[Admin] Submitting announcement payload", payload);
     const { error } = await runAdminRequest(() =>
       editing.id
         ? supabase.from("announcements").update(payload).eq("id", editing.id)
         : supabase.from("announcements").insert(payload)
     );
-    if (error) return toast.error(error.message);
+    if (error) {
+      console.error("[Admin] Announcement save error:", error);
+      return toast.error(error.message ?? "Save failed");
+    }
     toast.success("Saved");
     setEditing(null);
     await qc.refetchQueries({ queryKey: ["announcements"] });
