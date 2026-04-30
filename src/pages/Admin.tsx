@@ -238,6 +238,8 @@ const MacrosAdmin = () => {
       toast.error("Brand, title and body are required");
       return;
     }
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const payload = {
       brand: editing.brand,
       title: editing.title.trim(),
@@ -250,15 +252,17 @@ const MacrosAdmin = () => {
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
-    qc.invalidateQueries({ queryKey: ["macros"] });
+    await qc.refetchQueries({ queryKey: ["macros"] });
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this macro?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("macros").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["macros"] });
+    await qc.refetchQueries({ queryKey: ["macros"] });
   };
 
   const filtered = (data ?? []).filter((m) => filterBrand === "All" || m.brand === filterBrand);
