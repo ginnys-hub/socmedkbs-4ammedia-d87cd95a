@@ -3,6 +3,17 @@ import { Navigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+
+/** Ensure a valid session exists before performing a mutation.
+ *  Prevents RLS errors when the session is still hydrating or has expired. */
+const ensureSession = async (): Promise<string | null> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error || !data.session) return "Your session expired. Please sign in again.";
+  }
+  return null;
+};
 import {
   useAnnouncements,
   useMacros,
