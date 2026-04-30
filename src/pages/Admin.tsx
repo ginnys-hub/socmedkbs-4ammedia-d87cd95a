@@ -43,7 +43,13 @@ import {
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Skeleton className="h-12 w-48 rounded-full" />
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/admin/login" replace />;
   if (!isAdmin)
     return (
