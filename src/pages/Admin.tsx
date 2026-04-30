@@ -3,6 +3,17 @@ import { Navigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+
+/** Ensure a valid session exists before performing a mutation.
+ *  Prevents RLS errors when the session is still hydrating or has expired. */
+const ensureSession = async (): Promise<string | null> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error || !data.session) return "Your session expired. Please sign in again.";
+  }
+  return null;
+};
 import {
   useAnnouncements,
   useMacros,
@@ -43,7 +54,13 @@ import {
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Skeleton className="h-12 w-48 rounded-full" />
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/admin/login" replace />;
   if (!isAdmin)
     return (
@@ -105,6 +122,8 @@ const AnnouncementsAdmin = () => {
       toast.error("Title and body are required");
       return;
     }
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const payload = {
       title: editing.title.trim(),
       body: editing.body.trim(),
@@ -117,15 +136,17 @@ const AnnouncementsAdmin = () => {
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
-    qc.invalidateQueries({ queryKey: ["announcements"] });
+    await qc.refetchQueries({ queryKey: ["announcements"] });
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this announcement?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("announcements").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["announcements"] });
+    await qc.refetchQueries({ queryKey: ["announcements"] });
   };
 
   return (
@@ -217,6 +238,8 @@ const MacrosAdmin = () => {
       toast.error("Brand, title and body are required");
       return;
     }
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const payload = {
       brand: editing.brand,
       title: editing.title.trim(),
@@ -229,15 +252,17 @@ const MacrosAdmin = () => {
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
-    qc.invalidateQueries({ queryKey: ["macros"] });
+    await qc.refetchQueries({ queryKey: ["macros"] });
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this macro?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("macros").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["macros"] });
+    await qc.refetchQueries({ queryKey: ["macros"] });
   };
 
   const filtered = (data ?? []).filter((m) => filterBrand === "All" || m.brand === filterBrand);
@@ -336,6 +361,8 @@ const ScorecardsAdmin = () => {
   const addWeek = async (e: FormEvent) => {
     e.preventDefault();
     if (!newWeek.week_of || !newWeek.label.trim()) return toast.error("Both fields required");
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { data, error } = await supabase
       .from("scorecard_weeks")
       .insert({ week_of: newWeek.week_of, label: newWeek.label.trim() })
@@ -344,27 +371,30 @@ const ScorecardsAdmin = () => {
     if (error) return toast.error(error.message);
     toast.success("Week added");
     setNewWeek({ week_of: "", label: "" });
-    qc.invalidateQueries({ queryKey: ["scorecard_weeks"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
     if (data) setSelectedWeekId(data.id);
   };
 
   const setCurrent = async (id: string) => {
-    // Clear all then set this one
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error: e1 } = await supabase.from("scorecard_weeks").update({ is_current: false }).neq("id", "00000000-0000-0000-0000-000000000000");
     if (e1) return toast.error(e1.message);
     const { error: e2 } = await supabase.from("scorecard_weeks").update({ is_current: true }).eq("id", id);
     if (e2) return toast.error(e2.message);
     toast.success("Set as current week");
-    qc.invalidateQueries({ queryKey: ["scorecard_weeks"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
   };
 
   const deleteWeek = async (id: string) => {
     if (!confirm("Delete this week and all its entries?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("scorecard_weeks").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["scorecard_weeks"] });
-    qc.invalidateQueries({ queryKey: ["scorecard_entries_all"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_weeks"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
     setSelectedWeekId("");
   };
 
@@ -446,6 +476,8 @@ const EntriesEditor = ({ weekId, entries }: { weekId: string; entries: Scorecard
   const save = async (e: FormEvent) => {
     e.preventDefault();
     if (!draft?.member) return toast.error("Pick a member");
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const payload = {
       week_id: weekId,
       member: draft.member,
@@ -466,16 +498,18 @@ const EntriesEditor = ({ weekId, entries }: { weekId: string; entries: Scorecard
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setDraft(null);
-    qc.invalidateQueries({ queryKey: ["scorecard_entries", weekId] });
-    qc.invalidateQueries({ queryKey: ["scorecard_entries_all"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries", weekId] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this entry?")) return;
+    const sessionErr = await ensureSession();
+    if (sessionErr) return toast.error(sessionErr);
     const { error } = await supabase.from("scorecard_entries").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["scorecard_entries", weekId] });
-    qc.invalidateQueries({ queryKey: ["scorecard_entries_all"] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries", weekId] });
+    await qc.refetchQueries({ queryKey: ["scorecard_entries_all"] });
   };
 
   return (
