@@ -67,7 +67,7 @@ const isTransientBackendError = (error: { message?: string } | null | undefined)
 };
 
 const runAdminRequest = async <T,>(
-  request: () => Promise<{ data?: T | null; error: { message?: string } | null }>,
+  request: () => PromiseLike<{ data?: T | null; error: { message?: string } | null }>,
   maxAttempts = 3
 ) => {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
