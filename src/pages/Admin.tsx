@@ -66,22 +66,23 @@ const isTransientBackendError = (error: { message?: string } | null | undefined)
   return TRANSIENT_BACKEND_ERROR_PATTERNS.some((pattern) => pattern.test(message));
 };
 
-const runAdminRequest = async <T,>(
-  request: () => PromiseLike<{ data?: T | null; error: { message?: string } | null }>,
+async function runAdminRequest(
+  request: () => any,
   maxAttempts = 3
-) => {
+): Promise<{ data: any; error: { message?: string } | null }> {
+  let lastResult: { data: any; error: { message?: string } | null } = { data: null, error: null };
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const result = await request();
-    if (!result.error) return result;
-    if (!isTransientBackendError(result.error) || attempt === maxAttempts - 1) return result;
+    try {
+      lastResult = await request();
+    } catch (err: any) {
+      lastResult = { data: null, error: { message: err?.message ?? String(err) } };
+    }
+    if (!lastResult.error) return lastResult;
+    if (!isTransientBackendError(lastResult.error) || attempt === maxAttempts - 1) return lastResult;
     await wait(500 * (attempt + 1));
   }
-
-  return {
-    data: null,
-    error: { message: "The backend is still waking up. Please try again in a moment." },
-  };
-};
+  return lastResult;
+}
 
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -150,24 +151,32 @@ const AnnouncementsAdmin = () => {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
+    console.log("[Admin] Save announcement clicked", editing);
     if (!editing?.title?.trim() || !editing?.body?.trim()) {
       toast.error("Title and body are required");
       return;
     }
     const sessionErr = await ensureSession();
-    if (sessionErr) return toast.error(sessionErr);
+    if (sessionErr) {
+      console.warn("[Admin] Session check failed:", sessionErr);
+      return toast.error(sessionErr);
+    }
     const payload = {
       title: editing.title.trim(),
       body: editing.body.trim(),
       posted_on: editing.posted_on || today,
       category: (editing.category as any) || "update",
     };
+    console.log("[Admin] Submitting announcement payload", payload);
     const { error } = await runAdminRequest(() =>
       editing.id
         ? supabase.from("announcements").update(payload).eq("id", editing.id)
         : supabase.from("announcements").insert(payload)
     );
-    if (error) return toast.error(error.message);
+    if (error) {
+      console.error("[Admin] Announcement save error:", error);
+      return toast.error(error.message ?? "Save failed");
+    }
     toast.success("Saved");
     setEditing(null);
     await qc.refetchQueries({ queryKey: ["announcements"] });
@@ -270,24 +279,32 @@ const MacrosAdmin = () => {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
+    console.log("[Admin] Save macro clicked", editing);
     if (!editing?.title?.trim() || !editing?.body?.trim() || !editing?.brand) {
       toast.error("Brand, title and body are required");
       return;
     }
     const sessionErr = await ensureSession();
-    if (sessionErr) return toast.error(sessionErr);
+    if (sessionErr) {
+      console.warn("[Admin] Session check failed:", sessionErr);
+      return toast.error(sessionErr);
+    }
     const payload = {
       brand: editing.brand,
       title: editing.title.trim(),
       body: editing.body.trim(),
       tags: editing.tags ?? [],
     };
+    console.log("[Admin] Submitting macro payload", payload);
     const { error } = await runAdminRequest(() =>
       editing.id
         ? supabase.from("macros").update(payload).eq("id", editing.id)
         : supabase.from("macros").insert(payload)
     );
-    if (error) return toast.error(error.message);
+    if (error) {
+      console.error("[Admin] Macro save error:", error);
+      return toast.error(error.message ?? "Save failed");
+    }
     toast.success("Saved");
     setEditing(null);
     await qc.refetchQueries({ queryKey: ["macros"] });
