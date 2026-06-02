@@ -136,9 +136,9 @@ const AnnouncementsBoard = () => {
                 <h3 className="mb-2 text-xl font-extrabold leading-snug">
                   {a.title}
                 </h3>
-                <p className="whitespace-pre-line text-base font-medium leading-relaxed">
-                  {a.body}
-                </p>
+                <div className="whitespace-pre-line text-base font-medium leading-relaxed">
+                  <Linkify text={a.body} />
+                </div>
               </article>
             );
           })}
@@ -185,5 +185,31 @@ const FilterChip = ({
     </span>
   </button>
 );
+
+const URL_RE =
+  /(https?:\/\/[^\s]+)/g;
+
+const Linkify = ({ text }: { text: string }) => {
+  const parts = text.split(URL_RE);
+  return (
+    <>
+      {parts.map((part, i) =>
+        URL_RE.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            {part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+};
 
 export default AnnouncementsBoard;
