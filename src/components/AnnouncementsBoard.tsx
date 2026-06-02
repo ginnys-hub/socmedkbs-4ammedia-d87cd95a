@@ -136,9 +136,9 @@ const AnnouncementsBoard = () => {
                 <h3 className="mb-2 text-xl font-extrabold leading-snug">
                   {a.title}
                 </h3>
-                <p className="whitespace-pre-line text-base font-medium leading-relaxed">
-                  {a.body}
-                </p>
+                <div className="whitespace-pre-line text-base font-medium leading-relaxed">
+                  <Linkify text={a.body} />
+                </div>
               </article>
             );
           })}
