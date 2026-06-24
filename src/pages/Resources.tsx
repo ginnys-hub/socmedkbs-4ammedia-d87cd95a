@@ -163,7 +163,7 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
 
         {product && (
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-3">
-            <Info label="Schedule" value={product.onMarketSchedule} />
+            <Info label="Schedule" value={highlightSchedule(product.onMarketSchedule)} />
             <Info label="Factory Model" value={product.factoryModel} />
             <Info label="Internal SKU" value={product.internalSku} />
             <Info label="Chipset" value={product.chipset} />
