@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Sparkles, Megaphone, BarChart3, MessageSquareText } from "lucide-react";
+import { Sparkles, Megaphone, BarChart3, MessageSquareText, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
