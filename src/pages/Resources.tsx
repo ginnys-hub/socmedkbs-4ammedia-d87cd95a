@@ -44,7 +44,7 @@ const Resources = () => {
         <div>
           <h1 className="text-3xl font-bold">Resources</h1>
           <p className="text-muted-foreground">
-            Product info, forms, and references — filter by brand, category, or tag.
+            Product info and references — filter by brand or category.
           </p>
         </div>
       </div>
@@ -68,33 +68,6 @@ const Resources = () => {
             active={category}
             onChange={setCategory}
           />
-
-          {allTags.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Tags
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {allTags.map((t) => {
-                  const on = activeTags.includes(t);
-                  return (
-                    <button
-                      key={t}
-                      onClick={() => toggleTag(t)}
-                      className={cn(
-                        "rounded-full border px-3 py-1 text-xs transition-colors",
-                        on
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background hover:bg-muted",
-                      )}
-                    >
-                      {t}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {hasFilters && (
             <div className="flex items-center justify-between border-t border-border pt-3 text-sm text-muted-foreground">
@@ -181,11 +154,6 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
         </div>
         <div className="flex flex-wrap gap-1.5 pt-1">
           <Badge>{resource.category}</Badge>
-          {resource.tags.map((t) => (
-            <Badge key={t} variant="outline" className="font-normal">
-              {t}
-            </Badge>
-          ))}
         </div>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
