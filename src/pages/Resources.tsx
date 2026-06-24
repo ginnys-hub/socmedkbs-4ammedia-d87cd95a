@@ -10,48 +10,30 @@ import { cn } from "@/lib/utils";
 const Resources = () => {
   const [brand, setBrand] = useState<string>("All");
   const [category, setCategory] = useState<string>("All");
-  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [query, setQuery] = useState("");
-
-  const allTags = useMemo(() => {
-    const filtered = resources.filter(
-      (r) => brand === "All" || r.brand === brand,
-    );
-    return Array.from(new Set(filtered.flatMap((r) => r.tags))).sort();
-  }, [brand]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return resources.filter((r) => {
       if (brand !== "All" && r.brand !== brand) return false;
       if (category !== "All" && r.category !== category) return false;
-      if (activeTags.length && !activeTags.every((t) => r.tags.includes(t)))
-        return false;
       if (
         q &&
-        !`${r.title} ${r.description} ${r.tags.join(" ")}`
-          .toLowerCase()
-          .includes(q)
+        !`${r.title} ${r.description}`.toLowerCase().includes(q)
       )
         return false;
       return true;
     });
-  }, [brand, category, activeTags, query]);
-
-  const toggleTag = (t: string) =>
-    setActiveTags((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
-    );
+  }, [brand, category, query]);
 
   const clearAll = () => {
     setBrand("All");
     setCategory("All");
-    setActiveTags([]);
     setQuery("");
   };
 
   const hasFilters =
-    brand !== "All" || category !== "All" || activeTags.length > 0 || query;
+    brand !== "All" || category !== "All" || query;
 
   return (
     <div className="space-y-6">
