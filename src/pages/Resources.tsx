@@ -181,7 +181,17 @@ const FilterRow = ({
 const ResourceCard = ({ resource }: { resource: Resource }) => {
   const { product } = resource;
   return (
-    <Card className="hover-scale">
+    <Card className="hover-scale overflow-hidden">
+      {product?.image && (
+        <div className="flex h-40 items-center justify-center bg-muted/40 p-4">
+          <img
+            src={product.image}
+            alt={resource.title}
+            className="max-h-full max-w-full object-contain"
+            loading="lazy"
+          />
+        </div>
+      )}
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg">{resource.title}</CardTitle>

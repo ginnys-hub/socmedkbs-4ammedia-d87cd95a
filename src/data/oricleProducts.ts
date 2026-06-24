@@ -1,5 +1,13 @@
+import oricle20 from "@/assets/products/oricle-2-0.png.asset.json";
+import oricle30v1 from "@/assets/products/oricle-3-0-v1.png.asset.json";
+import oricle30v2 from "@/assets/products/oricle-3-0-v2.png.asset.json";
+import oriclePro from "@/assets/products/oricle-pro.png.asset.json";
+import oricleProPlusV1 from "@/assets/products/oricle-pro-plus-v1.png.asset.json";
+import oricleProPlusV2 from "@/assets/products/oricle-pro-plus-v2.jpeg.asset.json";
+
 export type OricleProduct = {
   name: string;
+  image: string;
   marketPrice: number;
   marketingStatus: string;
   onMarketSchedule: string;
@@ -21,7 +29,18 @@ export type OricleProduct = {
   screenDisplay: boolean;
 };
 
-export const oricleProducts: OricleProduct[] = [
+const images: Record<string, string> = {
+  "Oricle 2.0": oricle20.url,
+  "Oricle 3.0 - V1": oricle30v1.url,
+  "Oricle 3.0 - V2": oricle30v2.url,
+  "Oricle Pro": oriclePro.url,
+  "Oricle PRO+ V1": oricleProPlusV1.url,
+  "Oricle PRO+ V2": oricleProPlusV2.url,
+};
+
+type BaseProduct = Omit<OricleProduct, "image">;
+
+const baseProducts: BaseProduct[] = [
   {
     name: "Oricle 2.0",
     marketPrice: 99,
@@ -157,3 +176,9 @@ export const oricleProducts: OricleProduct[] = [
     screenDisplay: true,
   },
 ];
+
+export const oricleProducts: OricleProduct[] = baseProducts.map((p) => ({
+  ...p,
+  image: images[p.name],
+}));
+
