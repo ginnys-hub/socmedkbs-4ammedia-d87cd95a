@@ -193,11 +193,67 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
   );
 };
 
-const Info = ({ label, value }: { label: string; value: string }) => (
+const Info = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div>
     <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
     <div className="font-medium">{value}</div>
   </div>
 );
+
+const highlightDescription = (text: string) => {
+  const phrase = "Discontinues after the inventory is out.";
+  const parts = text.split(phrase);
+  if (parts.length === 1) return text;
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 && (
+            <span className="text-red-600">{phrase}</span>
+          )}
+        </span>
+      ))}
+    </>
+  );
+};
+
+const highlightSchedule = (text: string) => {
+  const lower = text.toLowerCase();
+  const segments: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (let i = 0; i < text.length; ) {
+    const remaining = lower.slice(i);
+    let match: { phrase: string; color: string } | null = null;
+
+    if (remaining.startsWith("phase in")) {
+      match = { phrase: text.slice(i, i + 8), color: "text-green-600" };
+    } else if (remaining.startsWith("phase out")) {
+      match = { phrase: text.slice(i, i + 9), color: "text-red-900" };
+    }
+
+    if (match) {
+      if (i > lastIndex) {
+        segments.push(<span key={lastIndex}>{text.slice(lastIndex, i)}</span>);
+      }
+      segments.push(
+        <span key={i} className={match.color}>
+          {match.phrase}
+        </span>,
+      );
+      lastIndex = i + match.phrase.length;
+      i += match.phrase.length;
+    } else {
+      i++;
+    }
+  }
+
+  if (lastIndex < text.length) {
+    segments.push(<span key={lastIndex}>{text.slice(lastIndex)}</span>);
+  }
+
+  return <>{segments}</>;
+};
 
 export default Resources;
