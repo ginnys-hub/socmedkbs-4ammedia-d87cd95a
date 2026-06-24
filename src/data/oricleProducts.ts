@@ -176,3 +176,9 @@ const baseProducts: BaseProduct[] = [
     screenDisplay: true,
   },
 ];
+
+export const oricleProducts: OricleProduct[] = baseProducts.map((p) => ({
+  ...p,
+  image: images[p.name],
+}));
+
