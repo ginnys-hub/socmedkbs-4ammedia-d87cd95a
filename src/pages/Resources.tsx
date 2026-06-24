@@ -157,7 +157,9 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
-        <p className="text-muted-foreground">{resource.description}</p>
+        <p className="text-muted-foreground">
+          {highlightDescription(resource.description)}
+        </p>
 
         {product && (
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-3">
