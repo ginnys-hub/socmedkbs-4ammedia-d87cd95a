@@ -1,69 +1,233 @@
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { oricleProducts } from "@/data/oricleProducts";
-import { Package } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { BRANDS, CATEGORIES, resources, type Resource } from "@/data/resources";
+import { BookOpen, ExternalLink, Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Resources = () => {
-  const products99 = oricleProducts.filter((p) => p.marketPrice === 99);
-  const products149 = oricleProducts.filter((p) => p.marketPrice === 149);
+  const [brand, setBrand] = useState<string>("All");
+  const [category, setCategory] = useState<string>("All");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
 
-  const renderGroup = (title: string, items: typeof oricleProducts) => (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">{title}</h2>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {items.map((p) => (
-          <Card key={p.name} className="hover-scale">
-            <CardHeader>
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-lg">{p.name}</CardTitle>
-                <Badge variant="secondary">${p.marketPrice}</Badge>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Badge>{p.type}</Badge>
-                <Badge variant="outline">{p.marketingStatus}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p className="text-muted-foreground">{p.description}</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                <Info label="On-Market Schedule" value={p.onMarketSchedule} />
-                <Info label="Factory Model" value={p.factoryModel} />
-                <Info label="Internal SKU" value={p.internalSku} />
-                <Info label="Chipset" value={p.chipset} />
-                <Info label="Current Inventory" value={p.currentInventory} />
-                <Info label="On Order" value={p.onOrder} />
-                <Info label="CIC" value={p.cic} />
-                <Info label="Channels" value={String(p.channels)} />
-                <Info label="Volume Levels" value={String(p.volume)} />
-                <Info label="Modes" value={String(p.modes)} />
-                <Info label="Start-up Mode" value={p.startUpMode} />
-                <Info label="Start-up Delay" value={p.startUpDelay} />
-                <Info label="Remove Sticker?" value={p.needRemoveSticker} />
-                <Info label="Power" value={p.powerType} />
-                <Info label="Screen Display" value={p.screenDisplay ? "Yes" : "No"} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
+  const allTags = useMemo(() => {
+    const filtered = resources.filter(
+      (r) => brand === "All" || r.brand === brand,
+    );
+    return Array.from(new Set(filtered.flatMap((r) => r.tags))).sort();
+  }, [brand]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return resources.filter((r) => {
+      if (brand !== "All" && r.brand !== brand) return false;
+      if (category !== "All" && r.category !== category) return false;
+      if (activeTags.length && !activeTags.every((t) => r.tags.includes(t)))
+        return false;
+      if (
+        q &&
+        !`${r.title} ${r.description} ${r.tags.join(" ")}`
+          .toLowerCase()
+          .includes(q)
+      )
+        return false;
+      return true;
+    });
+  }, [brand, category, activeTags, query]);
+
+  const toggleTag = (t: string) =>
+    setActiveTags((prev) =>
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
+    );
+
+  const clearAll = () => {
+    setBrand("All");
+    setCategory("All");
+    setActiveTags([]);
+    setQuery("");
+  };
+
+  const hasFilters =
+    brand !== "All" || category !== "All" || activeTags.length > 0 || query;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-hero shadow-soft">
-          <Package className="h-5 w-5 text-primary-foreground" />
+          <BookOpen className="h-5 w-5 text-primary-foreground" />
         </span>
         <div>
           <h1 className="text-3xl font-bold">Resources</h1>
-          <p className="text-muted-foreground">Oricle product information reference for the team.</p>
+          <p className="text-muted-foreground">
+            Product info, forms, and references — filter by brand, category, or tag.
+          </p>
         </div>
       </div>
 
-      {renderGroup("$99 Products", products99)}
-      {renderGroup("$149 Products", products149)}
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search resources..."
+              className="pl-9"
+            />
+          </div>
+
+          <FilterRow label="Brand" options={[...BRANDS]} active={brand} onChange={setBrand} />
+          <FilterRow
+            label="Category"
+            options={CATEGORIES as string[]}
+            active={category}
+            onChange={setCategory}
+          />
+
+          {allTags.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Tags
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((t) => {
+                  const on = activeTags.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => toggleTag(t)}
+                      className={cn(
+                        "rounded-full border px-3 py-1 text-xs transition-colors",
+                        on
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background hover:bg-muted",
+                      )}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {hasFilters && (
+            <div className="flex items-center justify-between border-t border-border pt-3 text-sm text-muted-foreground">
+              <span>
+                Showing {filtered.length} of {resources.length} resources
+              </span>
+              <Button variant="ghost" size="sm" onClick={clearAll}>
+                <X className="mr-1 h-3 w-3" /> Clear filters
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            No resources match your filters.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((r) => (
+            <ResourceCard key={r.id} resource={r} />
+          ))}
+        </div>
+      )}
     </div>
+  );
+};
+
+const FilterRow = ({
+  label,
+  options,
+  active,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  active: string;
+  onChange: (v: string) => void;
+}) => (
+  <div className="space-y-2">
+    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      {label}
+    </div>
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt}
+          onClick={() => onChange(opt)}
+          className={cn(
+            "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+            active === opt
+              ? "bg-primary text-primary-foreground shadow-soft"
+              : "bg-muted text-muted-foreground hover:bg-muted/70",
+          )}
+        >
+          {opt}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const ResourceCard = ({ resource }: { resource: Resource }) => {
+  const { product } = resource;
+  return (
+    <Card className="hover-scale">
+      <CardHeader>
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-lg">{resource.title}</CardTitle>
+          <Badge variant="secondary">{resource.brand}</Badge>
+        </div>
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          <Badge>{resource.category}</Badge>
+          {resource.tags.map((t) => (
+            <Badge key={t} variant="outline" className="font-normal">
+              {t}
+            </Badge>
+          ))}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <p className="text-muted-foreground">{resource.description}</p>
+
+        {product && (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-3">
+            <Info label="Schedule" value={product.onMarketSchedule} />
+            <Info label="Factory Model" value={product.factoryModel} />
+            <Info label="Internal SKU" value={product.internalSku} />
+            <Info label="Chipset" value={product.chipset} />
+            <Info label="Inventory" value={product.currentInventory} />
+            <Info label="On Order" value={product.onOrder} />
+            <Info label="Channels" value={String(product.channels)} />
+            <Info label="Volume Levels" value={String(product.volume)} />
+            <Info label="Modes" value={String(product.modes)} />
+            <Info label="Start-up Mode" value={product.startUpMode} />
+            <Info label="Start-up Delay" value={product.startUpDelay} />
+            <Info label="Remove Sticker?" value={product.needRemoveSticker} />
+          </div>
+        )}
+
+        {resource.href && (
+          <a
+            href={resource.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            Open <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
