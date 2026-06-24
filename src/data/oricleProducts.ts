@@ -38,8 +38,9 @@ const images: Record<string, string> = {
   "Oricle PRO+ V2": oricleProPlusV2.url,
 };
 
+type BaseProduct = Omit<OricleProduct, "image">;
 
-export const oricleProducts: OricleProduct[] = [
+const baseProducts: BaseProduct[] = [
   {
     name: "Oricle 2.0",
     marketPrice: 99,
