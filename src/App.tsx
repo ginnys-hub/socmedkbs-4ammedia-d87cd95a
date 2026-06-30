@@ -9,6 +9,7 @@ import Index from "./pages/Index.tsx";
 import Scorecards from "./pages/Scorecards.tsx";
 import Macros from "./pages/Macros.tsx";
 import Resources from "./pages/Resources.tsx";
+import Translator from "./pages/Translator.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/scorecards" element={<Scorecards />} />
               <Route path="/macros" element={<Macros />} />
               <Route path="/resources" element={<Resources />} />
+              <Route path="/translator" element={<Translator />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<Admin />} />
