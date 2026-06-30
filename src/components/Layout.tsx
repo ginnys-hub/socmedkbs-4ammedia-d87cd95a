@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Sparkles, Megaphone, BarChart3, MessageSquareText, FileText, BookOpen } from "lucide-react";
+import { Sparkles, Megaphone, BarChart3, MessageSquareText, FileText, BookOpen, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -41,6 +41,20 @@ const Layout = () => {
                 <span className="hidden sm:inline">{label}</span>
               </NavLink>
             ))}
+            <NavLink
+              to="/translator"
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-soft"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )
+              }
+            >
+              <Languages className="h-4 w-4" />
+              <span className="hidden sm:inline">Translator</span>
+            </NavLink>
             <a
               href="https://forms.gle/9fUouXo2xURBrSWc6"
               target="_blank"
