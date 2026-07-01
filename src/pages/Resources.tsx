@@ -134,13 +134,13 @@ const FilterRow = ({
 );
 
 const ResourceCard = ({ resource }: { resource: Resource }) => {
-  const { product } = resource;
+  const { product, thumbnail } = resource;
   return (
     <Card className="hover-scale overflow-hidden">
-      {product?.image && (
+      {thumbnail && (
         <div className="flex h-40 items-center justify-center bg-muted/40 p-4">
           <img
-            src={product.image}
+            src={thumbnail}
             alt={resource.title}
             className="max-h-full max-w-full object-contain"
             loading="lazy"
