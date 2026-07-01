@@ -100,9 +100,6 @@ const Translator = () => {
         </span>
         <div>
           <h1 className="text-3xl font-bold">Translator</h1>
-          <p className="text-muted-foreground">
-            Powered by DeepL for high-quality translations.
-          </p>
         </div>
       </div>
 
