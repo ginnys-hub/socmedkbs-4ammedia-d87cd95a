@@ -16,25 +16,32 @@ import { toast } from "@/hooks/use-toast";
 const LANGUAGES = [
   "Auto-Detect",
   "English",
-  "Filipino (Tagalog)",
   "Spanish",
   "French",
   "German",
   "Italian",
   "Portuguese",
+  "Portuguese (Brazil)",
   "Chinese (Simplified)",
   "Chinese (Traditional)",
   "Japanese",
   "Korean",
-  "Vietnamese",
-  "Thai",
   "Indonesian",
-  "Malay",
   "Arabic",
-  "Hindi",
   "Russian",
   "Dutch",
   "Turkish",
+  "Polish",
+  "Ukrainian",
+  "Swedish",
+  "Danish",
+  "Norwegian",
+  "Finnish",
+  "Czech",
+  "Greek",
+  "Romanian",
+  "Hungarian",
+  "Bulgarian",
 ];
 
 const Translator = () => {
@@ -94,7 +101,7 @@ const Translator = () => {
         <div>
           <h1 className="text-3xl font-bold">Translator</h1>
           <p className="text-muted-foreground">
-            Powered by your own OpenAI API key (gpt-4o-mini).
+            Powered by DeepL for high-quality translations.
           </p>
         </div>
       </div>
