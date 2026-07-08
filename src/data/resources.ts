@@ -44,4 +44,14 @@ export const resources: Resource[] = [
     href: "https://hear.oriclehearing.com/?oid=112&affid=251&sub2=wk09q4vg4v816fgjjead1pss&c=US&lang=es",
     thumbnail: oricleEsSite,
   },
+  {
+    id: "oricle-2-0-comment-link",
+    title: "Oricle 2.0 — Correct Comment Link",
+    brand: "Oricle",
+    category: "Links" as ResourceCategory,
+    description:
+      "Use this link when replying to Oricle 2.0 comments. Do NOT use the Shopify site links (oriclehearing.com/products/...) — those are incorrect for comments.",
+    href: "https://now.oriclehearing.com/0ab9bd7d-3daa-4a86-a273-8789a7951f5f?AFID=FBC&campaign_name=comment&ad_name=2216223485812415",
+    thumbnail: oricle20.url,
+  },
 ];
