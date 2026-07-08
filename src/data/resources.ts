@@ -1,6 +1,8 @@
 import type { OricleProduct } from "./oricleProducts";
 import { oricleProducts } from "./oricleProducts";
 import oricleEsSite from "@/assets/oricle-es-site.png";
+import oricle20 from "@/assets/products/oricle-2-0.png.asset.json";
+
 
 export type ResourceCategory = "Product Info" | "Guides" | "Links";
 
