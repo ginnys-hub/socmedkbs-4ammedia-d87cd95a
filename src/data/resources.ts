@@ -51,7 +51,7 @@ export const resources: Resource[] = [
     category: "Links" as ResourceCategory,
     description:
       "Use this link when replying to Oricle 2.0 comments. Do NOT use the Shopify site links (oriclehearing.com/products/...) — those are incorrect for comments.",
-    href: "https://now.oriclehearing.com/0ab9bd7d-3daa-4a86-a273-8789a7951f5f?AFID=FBC&campaign_name=comment&ad_name=2216223485812415",
+    href: "https://now.oriclehearing.com/0ab9bd7d-3daa-4a86-a273-8789a7951f5f?ad_id={{ad.id}}&adset_id={{adset.id}}&campaign_id={{campaign.id}}&ad_name={{ad.name}}&adset_name={{adset.name}}&campaign_name={{campaign.name}}&source={{site_source_name}}&AFID=FBC&placement={{placement}}",
     thumbnail: oricle20.url,
   },
 ];
