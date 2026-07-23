@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import Index from "./pages/Index.tsx";
 import Scorecards from "./pages/Scorecards.tsx";
 import Macros from "./pages/Macros.tsx";
+import ZendeskMacros from "./pages/ZendeskMacros.tsx";
 import Resources from "./pages/Resources.tsx";
 import Translator from "./pages/Translator.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/scorecards" element={<Scorecards />} />
               <Route path="/macros" element={<Macros />} />
+              <Route path="/zendesk-macros" element={<ZendeskMacros />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/translator" element={<Translator />} />
             </Route>
