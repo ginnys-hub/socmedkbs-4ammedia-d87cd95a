@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Sparkles, Megaphone, BarChart3, MessageSquareText, FileText, BookOpen, Languages } from "lucide-react";
+import { Sparkles, Megaphone, BarChart3, MessageSquareText, FileText, BookOpen, Languages, FolderTree } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
   { to: "/macros", label: "Macros", icon: MessageSquareText },
+  { to: "/zendesk-macros", label: "Zendesk Macros", icon: FolderTree },
   { to: "/resources", label: "Resources", icon: BookOpen },
 ];
 
