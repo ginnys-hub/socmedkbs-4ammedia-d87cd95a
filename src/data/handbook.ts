@@ -13,6 +13,10 @@ export type HandbookItem = {
   summary: string;
   points: string[];
   links?: { label: string; href: string }[];
+  table?: {
+    columns: string[];
+    rows: string[][];
+  };
 };
 
 export const handbookSource = {
@@ -468,6 +472,60 @@ export const handbookItems: HandbookItem[] = [
       "Inbound calls: daily target 40; weekly target 180 based on 4.5 days.",
       "Outbound calls: target 30 per hour, based on outbound hours.",
     ],
+  },
+  {
+    id: "performance-review",
+    category: "Policy",
+    title: "Performance Review",
+    summary:
+      "Performance reviews connect attendance, quality, ticket output, achievement, work ethic, and infractions into a clear weekly or monthly review conversation.",
+    points: [
+      "Use the scorecard as the review baseline instead of relying on memory or isolated ticket examples.",
+      "Review attendance against scheduled hours and actual hours worked.",
+      "Review quality using QA score against QA maximum.",
+      "Review productivity using ticket actuals against ticket targets and the achievement percentage.",
+      "Review work ethic using the assigned work ethic score against the maximum score.",
+      "Review infractions separately so coaching, warnings, and repeated behavior patterns are visible.",
+      "Document the review outcome, required improvement, and follow-up expectations when a performance issue needs action.",
+    ],
+    table: {
+      columns: ["Area", "What to Check", "Review Action"],
+      rows: [
+        ["Attendance", "Hours worked vs. hours scheduled, tardiness, absences, and attendance infractions.", "Coach, document, or escalate according to the table of infractions."],
+        ["Quality", "QA score, accuracy, customer handling, macro usage, and resolution quality.", "Call out strengths, correct misses, and require retraining when patterns repeat."],
+        ["Productivity", "Ticket actuals vs. target, email/call output, and channel-specific targets.", "Compare against weekly or monthly targets and identify blockers."],
+        ["Achievement", "Overall completion against expected output.", "Use achievement percentage to separate effort gaps from workload or queue issues."],
+        ["Work Ethic", "Reliability, ownership, responsiveness, system updates, and follow-through.", "Recognize consistency or document behavior needing correction."],
+        ["Infractions", "Attendance, process, conduct, system, or customer-handling violations.", "Apply the appropriate warning level and track repeat issues."],
+      ],
+    },
+  },
+  {
+    id: "table-of-infractions",
+    category: "Policy",
+    title: "Table of Infractions",
+    summary:
+      "The source manual tracks infractions as part of performance management, with a November 4, 2021 update adding Verbal Warning and an April 27, 2025 update for Attendance: C.",
+    points: [
+      "Use infractions to document repeated or serious issues rather than relying on informal reminders alone.",
+      "Attendance infractions include schedule adherence problems such as tardiness, absence, undertime, no-show behavior, or failure to follow attendance notice rules.",
+      "Process infractions include missed required steps in Sticki, ShipHero, Gorgias, PayPal, escalation sheets, refunds, subscriptions, or order holds.",
+      "Customer-handling infractions include rude replies, incorrect brand disclosure, privacy violations, poor tone, or failure to use approved guidance/macros.",
+      "System-update infractions include failing to update the relevant ticket, order, hold, refund, note, tracking reference, or escalation record.",
+      "Escalate from coaching/verbal warning to written warning, final warning, or stronger action when behavior repeats or the issue is severe.",
+    ],
+    table: {
+      columns: ["Infraction Area", "Examples", "Typical Action"],
+      rows: [
+        ["Attendance", "Late login, undertime, unapproved absence, no call/no show, failure to follow notice rules.", "Attendance coaching, Verbal Warning, Written Warning, or higher escalation for repeated/severe cases."],
+        ["Performance", "Missing email, call, ticket, QA, achievement, or work ethic expectations.", "Performance review, documented coaching, improvement plan, or warning when patterns continue."],
+        ["Customer Response", "Incorrect information, poor tone, privacy breach, wrong brand handling, missed macro guidance.", "QA correction, retraining, documented warning for serious or repeated cases."],
+        ["Refunds and Returns", "Refunding in the wrong system, missing subscription cancellation, mishandling shipping-refund rules.", "Immediate correction, manager escalation when money or policy risk is involved."],
+        ["ShipHero / Sticki Process", "Incorrect order hold handling, missed cancellation, manual order mismatch, missing notes.", "Correct the order record, document the issue, and escalate if fulfillment risk remains."],
+        ["Escalations", "Missing required escalation sheet entry, incomplete details, delayed manager handoff.", "Complete the escalation record and review the miss with the agent."],
+        ["Conduct", "Rude behavior, refusal to follow process, careless handling of sensitive/internal information.", "Manager review, warning level based on severity, and possible stronger action."],
+      ],
+    },
   },
   {
     id: "change-log",
