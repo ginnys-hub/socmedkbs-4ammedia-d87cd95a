@@ -10,6 +10,7 @@ import Scorecards from "./pages/Scorecards.tsx";
 import Macros from "./pages/Macros.tsx";
 import ZendeskMacros from "./pages/ZendeskMacros.tsx";
 import Resources from "./pages/Resources.tsx";
+import Handbook from "./pages/Handbook.tsx";
 import Translator from "./pages/Translator.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import Admin from "./pages/Admin.tsx";
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/macros" element={<Macros />} />
               <Route path="/zendesk-macros" element={<ZendeskMacros />} />
               <Route path="/resources" element={<Resources />} />
+              <Route path="/handbook" element={<Handbook />} />
               <Route path="/translator" element={<Translator />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
