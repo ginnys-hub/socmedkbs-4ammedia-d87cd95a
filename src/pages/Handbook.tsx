@@ -283,6 +283,39 @@ const HandbookCard = ({ item, index }: { item: HandbookItem; index: number }) =>
         ))}
       </div>
     )}
+
+    {item.table && (
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-border">
+        <table className="w-full min-w-[620px] text-sm">
+          <thead className={cn("text-xs uppercase tracking-wide", categoryStyles[item.category])}>
+            <tr>
+              {item.table.columns.map((column) => (
+                <th key={column} className="p-3 text-left font-extrabold">
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {item.table.rows.map((row) => (
+              <tr key={row.join("-")} className="border-t border-border">
+                {row.map((cell, index) => (
+                  <td
+                    key={`${row[0]}-${index}`}
+                    className={cn(
+                      "p-3 align-top leading-6",
+                      index === 0 ? "font-bold text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
   </article>
 );
 
