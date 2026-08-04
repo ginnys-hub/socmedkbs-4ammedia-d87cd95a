@@ -1,5 +1,15 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Sparkles, Megaphone, BarChart3, MessageSquareText, FileText, BookOpen, Languages, FolderTree } from "lucide-react";
+import {
+  Sparkles,
+  Megaphone,
+  BarChart3,
+  MessageSquareText,
+  FileText,
+  BookOpen,
+  Languages,
+  FolderTree,
+  BookMarked,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -8,6 +18,7 @@ const links = [
   { to: "/macros", label: "Macros", icon: MessageSquareText },
   { to: "/zendesk-macros", label: "Zendesk Macros", icon: FolderTree },
   { to: "/resources", label: "Resources", icon: BookOpen },
+  { to: "/handbook", label: "Handbook", icon: BookMarked },
 ];
 
 const Layout = () => {
