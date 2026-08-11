@@ -9,12 +9,14 @@ import {
   Languages,
   FolderTree,
   BookMarked,
+  UserX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
+  { to: "/csr-attrition", label: "CSR Attrition", icon: UserX },
   { to: "/macros", label: "Macros", icon: MessageSquareText },
   { to: "/zendesk-macros", label: "Zendesk Macros", icon: FolderTree },
   { to: "/resources", label: "Resources", icon: BookOpen },
