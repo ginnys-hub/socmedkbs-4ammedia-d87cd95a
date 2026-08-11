@@ -20,6 +20,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const reportUrl =
   "https://docs.google.com/spreadsheets/d/1F5Pih68VwYeAwSvxIs86Lh99bU0qAmLYT9Z1sFbDcZ8/edit";
@@ -463,6 +469,9 @@ const AttritionCommitters = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => 
 
 const EmployeeDetail = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => {
   const groups = groupRowsByTeam(rows);
+  const defaultOpenTeams = groups
+    .filter(({ totals }) => totals.totalAttrition > 0)
+    .map(({ team }) => team);
 
   return (
     <section className="rounded-3xl bg-card p-5 shadow-soft">
@@ -470,7 +479,7 @@ const EmployeeDetail = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => {
         <div>
           <h2 className="font-bold">CSR Attendance Review</h2>
           <p className="text-sm text-muted-foreground">
-            Team-grouped cards for a faster read on clean weeks, review items, and the exact attrition mix.
+            Team accordions for a faster read on clean weeks, review items, and the exact attrition mix.
           </p>
         </div>
         <span className="w-fit rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">
@@ -481,31 +490,41 @@ const EmployeeDetail = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => {
       {rows.length === 0 ? (
         <EmptyState message="No employee records match the current filters." />
       ) : (
-        <div className="mt-5 space-y-5">
+        <Accordion type="multiple" defaultValue={defaultOpenTeams} className="mt-5 space-y-3">
           {groups.map(({ team, rows: teamMembers, totals }) => (
-            <div key={team} className="rounded-2xl border border-border bg-background/60 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h3 className="font-extrabold">{team}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {teamMembers.length} CSRs · {totals.totalAttrition} attrition · {formatPercent(attritionRate(totals))} rate
-                  </p>
+            <AccordionItem
+              key={team}
+              value={team}
+              className="overflow-hidden rounded-2xl border border-border bg-background/60 px-0 shadow-sm"
+            >
+              <AccordionTrigger className="px-4 py-4 text-left hover:no-underline">
+                <div className="flex w-full flex-col gap-3 pr-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-extrabold">{team}</h3>
+                      <TeamHealthPill totalAttrition={totals.totalAttrition} />
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {teamMembers.length} CSRs · {totals.totalAttrition} attrition · {formatPercent(attritionRate(totals))} rate
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs font-bold">
+                    <MetricChip label="Absent" value={totals.absent} />
+                    <MetricChip label="Undertime" value={totals.undertime} />
+                    <MetricChip label="Late" value={totals.late} />
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2 text-xs font-bold">
-                  <MetricChip label="Absent" value={totals.absent} />
-                  <MetricChip label="Undertime" value={totals.undertime} />
-                  <MetricChip label="Late" value={totals.late} />
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4 pt-0">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {teamMembers.map((row) => (
+                    <CsrReviewCard key={`${row[1]}-${row[2]}`} row={row} />
+                  ))}
                 </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {teamMembers.map((row) => (
-                  <CsrReviewCard key={`${row[1]}-${row[2]}`} row={row} />
-                ))}
-              </div>
-            </div>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
       )}
     </section>
   );
@@ -567,6 +586,18 @@ const CsrReviewCard = ({ row }: { row: EmployeeRow }) => {
       </div>
     </article>
   );
+};
+
+const TeamHealthPill = ({ totalAttrition }: { totalAttrition: number }) => {
+  if (totalAttrition >= 3) {
+    return <span className="rounded-full bg-bubblegum px-3 py-1 text-xs font-bold text-bubblegum-foreground">Needs Attention</span>;
+  }
+
+  if (totalAttrition > 0) {
+    return <span className="rounded-full bg-sunny px-3 py-1 text-xs font-bold text-sunny-foreground">Has Attrition</span>;
+  }
+
+  return <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-mint-foreground">Clean Team</span>;
 };
 
 const StatusPill = ({ totalAttrition }: { totalAttrition: number }) => {
