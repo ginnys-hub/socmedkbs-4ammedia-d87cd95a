@@ -1,11 +1,15 @@
+import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
   CalendarDays,
   CheckCircle2,
   ExternalLink,
+  Search,
+  SlidersHorizontal,
   UserX,
   UsersRound,
+  X,
 } from "lucide-react";
 import {
   Bar,
@@ -92,9 +96,12 @@ const employeeRows = [
   ["Social Media Team", "TEAM GEORGINA", "Jessel Lebosada", 5, 0, 0, 0, 0],
 ] as const;
 
-const attritionEmployeeRows = employeeRows.filter(
-  ([, , , , , , , totalAttrition]) => totalAttrition > 0
-);
+type EmployeeRow = (typeof employeeRows)[number];
+
+type EmployeeFilter = "all" | "attrition";
+
+const departmentOptions = ["All Departments", ...departmentRows.map((row) => row.department)];
+const teamOptions = ["All Teams", ...teamRows.map((row) => row.team)];
 
 const attritionRate = (row: { onTime: number; totalAttrition: number }) => {
   const scheduled = row.onTime + row.totalAttrition;
@@ -104,10 +111,43 @@ const attritionRate = (row: { onTime: number; totalAttrition: number }) => {
 const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 const CsrAttrition = () => {
+  const [query, setQuery] = useState("");
+  const [department, setDepartment] = useState("All Departments");
+  const [team, setTeam] = useState("All Teams");
+  const [filter, setFilter] = useState<EmployeeFilter>("all");
+
   const chartData = teamRows.map((row) => ({
     team: row.team.replace("TEAM ", ""),
     attrition: row.totalAttrition,
   }));
+
+  const filteredEmployeeRows = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return employeeRows.filter(([rowDepartment, rowTeam, employee, , , , , totalAttrition]) => {
+      if (department !== "All Departments" && rowDepartment !== department) return false;
+      if (team !== "All Teams" && rowTeam !== team) return false;
+      if (filter === "attrition" && totalAttrition === 0) return false;
+      if (!normalizedQuery) return true;
+
+      return `${employee} ${rowDepartment} ${rowTeam}`.toLowerCase().includes(normalizedQuery);
+    });
+  }, [department, filter, query, team]);
+
+  const filteredAttritionRows = useMemo(
+    () => filteredEmployeeRows.filter(([, , , , , , , totalAttrition]) => totalAttrition > 0),
+    [filteredEmployeeRows]
+  );
+
+  const filteredTotals = useMemo(() => buildTotals(filteredEmployeeRows), [filteredEmployeeRows]);
+  const hasFilters = query.trim() || department !== "All Departments" || team !== "All Teams" || filter !== "all";
+
+  const clearFilters = () => {
+    setQuery("");
+    setDepartment("All Departments");
+    setTeam("All Teams");
+    setFilter("all");
+  };
 
   return (
     <div className="space-y-8">
@@ -188,6 +228,91 @@ const CsrAttrition = () => {
         </div>
       </section>
 
+      <section className="rounded-3xl bg-card p-5 shadow-soft">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4 text-primary" />
+              <h2 className="font-bold">Explore CSR records</h2>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Filter the detail tables by name, department, team, or attrition status.
+            </p>
+          </div>
+          {hasFilters && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-muted px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        <div className="mt-5 grid gap-3 lg:grid-cols-[1.2fr_0.9fr_0.9fr_auto]">
+          <label className="relative block">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search CSR, team, or department..."
+              className="h-11 w-full rounded-full border border-input bg-background pl-11 pr-4 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+            />
+          </label>
+
+          <select
+            value={department}
+            onChange={(event) => setDepartment(event.target.value)}
+            className="h-11 rounded-full border border-input bg-background px-4 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            {departmentOptions.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+
+          <select
+            value={team}
+            onChange={(event) => setTeam(event.target.value)}
+            className="h-11 rounded-full border border-input bg-background px-4 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            {teamOptions.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+
+          <div className="flex rounded-full bg-muted p-1">
+            <button
+              onClick={() => setFilter("all")}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                filter === "all"
+                  ? "bg-primary text-primary-foreground shadow-soft"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter("attrition")}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                filter === "attrition"
+                  ? "bg-primary text-primary-foreground shadow-soft"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Attrition
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-4">
+          <FilterStat label="Showing CSRs" value={filteredEmployeeRows.length} />
+          <FilterStat label="With Attrition" value={filteredAttritionRows.length} />
+          <FilterStat label="Filtered Attrition" value={filteredTotals.totalAttrition} />
+          <FilterStat label="Filtered Rate" value={formatPercent(attritionRate(filteredTotals))} />
+        </div>
+      </section>
+
       <ReportTable
         title="Department Summary"
         rows={departmentRows}
@@ -197,46 +322,9 @@ const CsrAttrition = () => {
 
       <ReportTable title="Team Summary" rows={teamRows} firstColumn="Team" firstKey="team" />
 
-      <AttritionCommitters rows={attritionEmployeeRows} />
+      <AttritionCommitters rows={filteredAttritionRows} />
 
-      <section className="overflow-x-auto rounded-3xl bg-card shadow-soft">
-        <div className="flex items-center justify-between gap-3 border-b border-border p-5">
-          <div>
-            <h2 className="font-bold">Employee Detail</h2>
-            <p className="text-sm text-muted-foreground">
-              Total Attrition equals absent plus undertime plus late.
-            </p>
-          </div>
-        </div>
-        <table className="w-full min-w-[860px] text-sm">
-          <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="p-3 text-left">Department</th>
-              <th className="p-3 text-left">Team</th>
-              <th className="p-3 text-left">Employee</th>
-              <th className="p-3 text-right">On Time</th>
-              <th className="p-3 text-right">Absent</th>
-              <th className="p-3 text-right">Undertime</th>
-              <th className="p-3 text-right">Late</th>
-              <th className="p-3 text-right">Total Attrition</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employeeRows.map(([department, team, employee, onTime, absent, undertime, late, totalAttrition]) => (
-              <tr key={`${team}-${employee}`} className="border-t border-border transition-colors hover:bg-muted/40">
-                <td className="p-3 text-muted-foreground">{department}</td>
-                <td className="p-3 font-medium">{team}</td>
-                <td className="p-3 font-semibold">{employee}</td>
-                <td className="p-3 text-right">{onTime}</td>
-                <td className="p-3 text-right">{absent}</td>
-                <td className="p-3 text-right">{undertime}</td>
-                <td className="p-3 text-right">{late}</td>
-                <td className="p-3 text-right font-bold text-primary">{totalAttrition}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <EmployeeDetail rows={filteredEmployeeRows} />
     </div>
   );
 };
@@ -256,6 +344,18 @@ type ReportTableProps<T extends RowWithTotals> = {
   firstColumn: string;
   firstKey: keyof T;
 };
+
+const buildTotals = (rows: ReadonlyArray<EmployeeRow>) =>
+  rows.reduce(
+    (acc, [, , , onTime, absent, undertime, late, totalAttrition]) => ({
+      onTime: acc.onTime + onTime,
+      absent: acc.absent + absent,
+      undertime: acc.undertime + undertime,
+      late: acc.late + late,
+      totalAttrition: acc.totalAttrition + totalAttrition,
+    }),
+    { onTime: 0, absent: 0, undertime: 0, late: 0, totalAttrition: 0 }
+  );
 
 const ReportTable = <T extends RowWithTotals>({
   title,
@@ -298,7 +398,7 @@ const ReportTable = <T extends RowWithTotals>({
   </section>
 );
 
-const AttritionCommitters = ({ rows }: { rows: ReadonlyArray<(typeof employeeRows)[number]> }) => (
+const AttritionCommitters = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => (
   <section className="overflow-x-auto rounded-3xl bg-card shadow-soft">
     <div className="flex items-center justify-between gap-3 border-b border-border p-5">
       <div>
@@ -311,35 +411,100 @@ const AttritionCommitters = ({ rows }: { rows: ReadonlyArray<(typeof employeeRow
         {rows.length} CSRs
       </span>
     </div>
-    <table className="w-full min-w-[820px] text-sm">
-      <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
-        <tr>
-          <th className="p-3 text-left">CSR</th>
-          <th className="p-3 text-left">Department</th>
-          <th className="p-3 text-left">Team</th>
-          <th className="p-3 text-right">Absent</th>
-          <th className="p-3 text-right">Undertime</th>
-          <th className="p-3 text-right">Late</th>
-          <th className="p-3 text-right">Total Attrition</th>
-          <th className="p-3 text-right">Rate</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(([department, team, employee, onTime, absent, undertime, late, totalAttrition]) => (
-          <tr key={`${team}-${employee}-attrition`} className="border-t border-border transition-colors hover:bg-muted/40">
-            <td className="p-3 font-semibold">{employee}</td>
-            <td className="p-3 text-muted-foreground">{department}</td>
-            <td className="p-3 font-medium">{team}</td>
-            <td className="p-3 text-right">{absent}</td>
-            <td className="p-3 text-right">{undertime}</td>
-            <td className="p-3 text-right">{late}</td>
-            <td className="p-3 text-right font-bold text-primary">{totalAttrition}</td>
-            <td className="p-3 text-right">{formatPercent(attritionRate({ onTime, totalAttrition }))}</td>
+    {rows.length === 0 ? (
+      <EmptyState message="No CSRs match the current attrition filters." />
+    ) : (
+      <table className="w-full min-w-[820px] text-sm">
+        <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="p-3 text-left">CSR</th>
+            <th className="p-3 text-left">Department</th>
+            <th className="p-3 text-left">Team</th>
+            <th className="p-3 text-right">Absent</th>
+            <th className="p-3 text-right">Undertime</th>
+            <th className="p-3 text-right">Late</th>
+            <th className="p-3 text-right">Total Attrition</th>
+            <th className="p-3 text-right">Rate</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map(([department, team, employee, onTime, absent, undertime, late, totalAttrition]) => (
+            <tr key={`${team}-${employee}-attrition`} className="border-t border-border transition-colors hover:bg-muted/40">
+              <td className="p-3 font-semibold">{employee}</td>
+              <td className="p-3 text-muted-foreground">{department}</td>
+              <td className="p-3 font-medium">{team}</td>
+              <td className="p-3 text-right">{absent}</td>
+              <td className="p-3 text-right">{undertime}</td>
+              <td className="p-3 text-right">{late}</td>
+              <td className="p-3 text-right font-bold text-primary">{totalAttrition}</td>
+              <td className="p-3 text-right">{formatPercent(attritionRate({ onTime, totalAttrition }))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
   </section>
+);
+
+const EmployeeDetail = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => (
+  <section className="overflow-x-auto rounded-3xl bg-card shadow-soft">
+    <div className="flex items-center justify-between gap-3 border-b border-border p-5">
+      <div>
+        <h2 className="font-bold">Employee Detail</h2>
+        <p className="text-sm text-muted-foreground">
+          Total Attrition equals absent plus undertime plus late.
+        </p>
+      </div>
+      <span className="rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">
+        {rows.length} records
+      </span>
+    </div>
+    {rows.length === 0 ? (
+      <EmptyState message="No employee records match the current filters." />
+    ) : (
+      <table className="w-full min-w-[860px] text-sm">
+        <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="p-3 text-left">Department</th>
+            <th className="p-3 text-left">Team</th>
+            <th className="p-3 text-left">Employee</th>
+            <th className="p-3 text-right">On Time</th>
+            <th className="p-3 text-right">Absent</th>
+            <th className="p-3 text-right">Undertime</th>
+            <th className="p-3 text-right">Late</th>
+            <th className="p-3 text-right">Total Attrition</th>
+            <th className="p-3 text-right">Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([department, team, employee, onTime, absent, undertime, late, totalAttrition]) => (
+            <tr key={`${team}-${employee}`} className="border-t border-border transition-colors hover:bg-muted/40">
+              <td className="p-3 text-muted-foreground">{department}</td>
+              <td className="p-3 font-medium">{team}</td>
+              <td className="p-3 font-semibold">{employee}</td>
+              <td className="p-3 text-right">{onTime}</td>
+              <td className="p-3 text-right">{absent}</td>
+              <td className="p-3 text-right">{undertime}</td>
+              <td className="p-3 text-right">{late}</td>
+              <td className="p-3 text-right font-bold text-primary">{totalAttrition}</td>
+              <td className="p-3 text-right">{formatPercent(attritionRate({ onTime, totalAttrition }))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </section>
+);
+
+const EmptyState = ({ message }: { message: string }) => (
+  <div className="p-8 text-center text-sm text-muted-foreground">{message}</div>
+);
+
+const FilterStat = ({ label, value }: { label: string; value: string | number }) => (
+  <div className="rounded-2xl bg-muted p-4">
+    <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+    <div className="mt-1 text-2xl font-extrabold">{value}</div>
+  </div>
 );
 
 const SummaryRow = ({ label, value, strong = false }: { label: string; value: string | number; strong?: boolean }) => (
