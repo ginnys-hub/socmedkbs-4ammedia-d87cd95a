@@ -9,7 +9,6 @@ import {
   Languages,
   FolderTree,
   BookMarked,
-  UserX,
   ChevronDown,
   type LucideIcon,
 } from "lucide-react";
@@ -24,7 +23,6 @@ import { cn } from "@/lib/utils";
 const directLinks = [
   { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
-  { to: "/csr-attrition", label: "CSR Attrition", icon: UserX },
 ];
 
 const macroLinks = [
@@ -40,7 +38,6 @@ const resourceLinks = [
 
 const Layout = () => {
   const location = useLocation();
-  const isCsrAttritionPage = location.pathname === "/csr-attrition";
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,12 +96,7 @@ const Layout = () => {
           </nav>
         </div>
       </header>
-      <main
-        className={cn(
-          "container py-8 animate-fade-in",
-          isCsrAttritionPage && "max-w-[1800px] px-4 sm:px-6 lg:px-8"
-        )}
-      >
+      <main className="container py-8 animate-fade-in">
         <Outlet />
       </main>
       <footer className="container py-8 text-center text-sm text-muted-foreground">
