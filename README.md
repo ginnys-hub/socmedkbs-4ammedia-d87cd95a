@@ -26,3 +26,10 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Cloudflare Pages
+
+Use npm for installs and builds:
+
+- Build command: `npm run build`
+- Build output directory: `dist`
