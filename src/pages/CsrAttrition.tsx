@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   BarChart3,
   CheckCircle2,
-  ExternalLink,
   Search,
   SlidersHorizontal,
   UserX,
@@ -26,64 +25,59 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const reportUrl =
-  "https://docs.google.com/spreadsheets/d/1F5Pih68VwYeAwSvxIs86Lh99bU0qAmLYT9Z1sFbDcZ8/edit";
-
-const reportWindow = "August 3-9, 2026";
+const reportWindow = "January 01-August 09, 2026";
 
 const summary = {
-  employeesIncluded: 42,
-  employeesExcluded: 4,
-  onTime: 201,
-  absent: 3,
-  undertime: 5,
-  late: 2,
-  totalAttrition: 10,
+  employeesIncluded: 41,
+  onTime: 6052,
+  absent: 112,
+  undertime: 179,
+  late: 201,
+  totalAttrition: 492,
 };
 
 const employeeRows = [
-  ["Call Team", "TEAM CESS", "Jhon Rey Cawaling", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM CESS", "Vincent Anthony Alicando", 4, 0, 1, 0, 1],
-  ["Call Team", "TEAM CESS", "Ingred Caralos", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM CESS", "Barbie Dholl Kiawan", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM CESS", "Shaira Shein Gomez", 4, 0, 1, 0, 1],
-  ["Call Team", "TEAM CESS", "Angelo Robert Vargas", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Charlotte Gayle Jaro", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Cynthia Mae Aliviado", 4, 0, 1, 0, 1],
-  ["Call Team", "TEAM BRAI", "Gelby Ewican", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Jedah Lene Bondoc", 6, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Lady Mae Latonio", 4, 0, 1, 0, 1],
-  ["Call Team", "TEAM BRAI", "Ma. Joanne Len Boug", 6, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Oishin Ayapana", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Lean Marie Ligon", 5, 0, 0, 0, 0],
+  ["Call Team", "TEAM CESS", "Jhon Rey Cawaling", 164, 3, 2, 1, 6],
+  ["Call Team", "TEAM CESS", "Vincent Anthony Alicando", 166, 4, 11, 5, 20],
+  ["Call Team", "TEAM CESS", "Ingred Caralos", 165, 3, 3, 1, 7],
+  ["Call Team", "TEAM CESS", "Barbie Dholl Kiawan", 166, 4, 10, 7, 21],
+  ["Call Team", "TEAM CESS", "Shaira Shein Gomez", 134, 9, 8, 5, 22],
+  ["Call Team", "TEAM CESS", "Angelo Robert Vargas", 123, 3, 3, 2, 8],
+  ["Call Team", "TEAM BRAI", "Charlotte Gayle Jaro", 168, 2, 3, 8, 13],
+  ["Call Team", "TEAM BRAI", "Cynthia Mae Aliviado", 174, 5, 7, 3, 15],
+  ["Call Team", "TEAM BRAI", "Gelby Ewican", 193, 4, 4, 9, 17],
+  ["Call Team", "TEAM BRAI", "Jedah Lene Bondoc", 155, 3, 8, 14, 25],
+  ["Call Team", "TEAM BRAI", "Lady Mae Latonio", 129, 2, 23, 34, 59],
+  ["Call Team", "TEAM BRAI", "Ma. Joanne Len Boug", 180, 2, 2, 4, 8],
+  ["Call Team", "TEAM BRAI", "Oishin Ayapana", 141, 4, 4, 9, 17],
+  ["Call Team", "TEAM BRAI", "Lean Marie Ligon", 180, 0, 4, 0, 4],
   ["Call Team", "TEAM BRAI", "Dynalou Masangkay", 0, 0, 0, 0, 0],
-  ["Call Team", "TEAM BRAI", "Ryan Cinco", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Danielle Mae David", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Godwin Reasol", 4, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Candy Laid", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Mary Claudette Ibong", 4, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Sofhia Mae Santiago", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Cherry Rose Tubongbanua", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Lyra Miclat", 5, 0, 0, 0, 0],
-  ["Call Team", "TEAM DANIELLE", "Joemica Jan Carino", 4, 0, 1, 0, 1],
-  ["Email Team", "TEAM YURIE", "Mylene Butihen", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM YURIE", "Princess Jane Acibar", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM YURIE", "Novemei Ricaforte", 0, 0, 0, 0, 0],
-  ["Email Team", "TEAM YURIE", "Joanna Elizabeth Enopia", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM YURIE", "Alexis Joanna Castro", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM YURIE", "Mary IC Pamaong", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM NOBI", "Ace Luiz Aure", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM NOBI", "Jericca Mae Secreto", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM NOBI", "Maria Angelica Villegas", 3, 2, 0, 0, 2],
-  ["Email Team", "TEAM NOBI", "Jerome Licuanan", 5, 0, 0, 0, 0],
-  ["Email Team", "TEAM NOBI", "Methusela Laudiana", 9, 0, 0, 0, 0],
-  ["Email Team", "TEAM NOBI", "Avis Mae Jarabelo", 8, 0, 0, 0, 0],
-  ["Social Media Team", "TEAM GEORGINA", "Rande Delima", 3, 1, 0, 1, 2],
-  ["Social Media Team", "TEAM GEORGINA", "Jay Aparece", 6, 0, 0, 0, 0],
-  ["Social Media Team", "TEAM GEORGINA", "Alona Grace Jose", 6, 0, 0, 0, 0],
-  ["Social Media Team", "TEAM GEORGINA", "Jezzalyn Tarranza", 5, 0, 0, 1, 1],
-  ["Social Media Team", "TEAM GEORGINA", "Ava Reyes", 6, 0, 0, 0, 0],
-  ["Social Media Team", "TEAM GEORGINA", "Jessel Lebosada", 5, 0, 0, 0, 0],
+  ["Call Team", "TEAM BRAI", "Ryan Cinco", 14, 0, 0, 1, 1],
+  ["Call Team", "TEAM DANIELLE", "Danielle Mae David", 145, 3, 8, 8, 19],
+  ["Call Team", "TEAM DANIELLE", "Godwin Reasol", 170, 0, 4, 4, 8],
+  ["Call Team", "TEAM DANIELLE", "Candy Laid", 152, 8, 5, 9, 22],
+  ["Call Team", "TEAM DANIELLE", "Mary Claudette Ibong", 156, 4, 4, 4, 12],
+  ["Call Team", "TEAM DANIELLE", "Sofhia Mae Santiago", 146, 1, 9, 14, 24],
+  ["Call Team", "TEAM DANIELLE", "Cherry Rose Tubongbanua", 140, 1, 1, 1, 3],
+  ["Call Team", "TEAM DANIELLE", "Lyra Miclat", 105, 8, 10, 6, 24],
+  ["Call Team", "TEAM DANIELLE", "Joemica Jan Carino", 112, 2, 1, 1, 4],
+  ["Email Team", "TEAM YURIE", "Mylene Butihen", 162, 6, 1, 3, 10],
+  ["Email Team", "TEAM YURIE", "Princess Jane Acibar", 161, 3, 3, 2, 8],
+  ["Email Team", "TEAM YURIE", "Joanna Elizabeth Enopia", 161, 3, 3, 0, 6],
+  ["Email Team", "TEAM YURIE", "Alexis Joanna Castro", 168, 2, 6, 0, 8],
+  ["Email Team", "TEAM YURIE", "Mary IC Pamaong", 142, 0, 2, 0, 2],
+  ["Email Team", "TEAM NOBI", "Ace Luiz Aure", 158, 2, 2, 0, 4],
+  ["Email Team", "TEAM NOBI", "Jericca Mae Secreto", 175, 1, 2, 2, 5],
+  ["Email Team", "TEAM NOBI", "Maria Angelica Villegas", 169, 4, 3, 5, 12],
+  ["Email Team", "TEAM NOBI", "Jerome Licuanan", 153, 4, 0, 0, 4],
+  ["Email Team", "TEAM NOBI", "Methusela Laudiana", 144, 1, 2, 4, 7],
+  ["Email Team", "TEAM NOBI", "Avis Mae Jarabelo", 181, 1, 2, 4, 7],
+  ["Social Media Team", "TEAM GEORGINA", "Rande Delima", 150, 7, 0, 3, 10],
+  ["Social Media Team", "TEAM GEORGINA", "Jay Aparece", 160, 0, 3, 1, 4],
+  ["Social Media Team", "TEAM GEORGINA", "Alona Grace Jose", 162, 1, 0, 0, 1],
+  ["Social Media Team", "TEAM GEORGINA", "Jezzalyn Tarranza", 128, 1, 7, 12, 20],
+  ["Social Media Team", "TEAM GEORGINA", "Ava Reyes", 148, 0, 6, 7, 13],
+  ["Social Media Team", "TEAM GEORGINA", "Jessel Lebosada", 152, 1, 3, 7, 11],
 ] as const;
 
 type EmployeeRow = (typeof employeeRows)[number];
@@ -152,35 +146,25 @@ const CsrAttrition = () => {
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-3xl bg-gradient-mint p-6 shadow-pop sm:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-mint-foreground/80">
-              <BarChart3 className="h-4 w-4" />
-              CSR Department Attrition
-            </p>
-            <h1 className="mt-3 text-3xl font-extrabold text-mint-foreground sm:text-5xl">
-              Attrition Action Board
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-mint-foreground/85 sm:text-base">
-              Attendance Counter summary for {reportWindow}, excluding 4 CSRs from the report.
-            </p>
-          </div>
-
-          <a
-            href={reportUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-white/90 px-5 py-3 text-sm font-bold text-mint-foreground shadow-soft transition-transform hover:scale-[1.02]"
-          >
-            Open Google Sheet <ExternalLink className="h-4 w-4" />
-          </a>
+        <div className="max-w-3xl">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-mint-foreground/80">
+            <BarChart3 className="h-4 w-4" />
+            CSR Department Attrition
+          </p>
+          <h1 className="mt-3 text-3xl font-extrabold text-mint-foreground sm:text-5xl">
+            Attrition Action Board
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-mint-foreground/85 sm:text-base">
+            Attendance Counter rollup for {reportWindow}.
+          </p>
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard icon={UsersRound} label="Employees Included" value={summary.employeesIncluded} tone="primary" />
-        <StatCard icon={UserX} label="Employees Excluded" value={summary.employeesExcluded} tone="bubblegum" />
         <StatCard icon={CheckCircle2} label="On-time Marks" value={summary.onTime} tone="mint" />
+        <StatCard icon={UserX} label="Absences" value={summary.absent} tone="bubblegum" />
+        <StatCard icon={BarChart3} label="Undertime" value={summary.undertime} tone="primary" />
         <StatCard icon={AlertTriangle} label="Total Attrition" value={summary.totalAttrition} tone="sunny" />
       </section>
 
@@ -343,7 +327,7 @@ const driverLabel = (totals: Totals) => {
     ["Late", totals.late],
   ] as const;
   const [label, value] = [...drivers].sort((a, b) => b[1] - a[1])[0];
-  return value > 0 ? `${label} is the main driver` : "No attrition driver this week";
+  return value > 0 ? `${label} is the main driver` : "No attrition driver in this period";
 };
 
 const TeamActionBoard = ({ teams }: { teams: ReturnType<typeof buildTeamInsights> }) => (
@@ -492,7 +476,7 @@ const CsrReviewCard = ({ row }: { row: EmployeeRow }) => {
   const scheduled = onTime + totalAttrition;
   const onTimeRate = scheduled === 0 ? 0 : onTime / scheduled;
   const needsReview = totalAttrition > 0;
-  const highAttention = totalAttrition >= 2;
+  const highAttention = totalAttrition >= 20;
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-soft">
@@ -547,24 +531,32 @@ const MiniMetric = ({ label, value, accent = false }: { label: string; value: nu
 );
 
 const TeamHealthPill = ({ totalAttrition }: { totalAttrition: number }) => {
-  if (totalAttrition >= 3) {
+  if (totalAttrition >= 100) {
     return <span className="rounded-full bg-bubblegum px-3 py-1 text-xs font-bold text-bubblegum-foreground">Needs Attention</span>;
   }
 
+  if (totalAttrition >= 40) {
+    return <span className="rounded-full bg-sunny px-3 py-1 text-xs font-bold text-sunny-foreground">Watch Team</span>;
+  }
+
   if (totalAttrition > 0) {
-    return <span className="rounded-full bg-sunny px-3 py-1 text-xs font-bold text-sunny-foreground">Has Attrition</span>;
+    return <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-mint-foreground">Lower Volume</span>;
   }
 
   return <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-mint-foreground">Clean Team</span>;
 };
 
 const StatusPill = ({ totalAttrition }: { totalAttrition: number }) => {
-  if (totalAttrition >= 2) {
+  if (totalAttrition >= 20) {
     return <span className="rounded-full bg-bubblegum px-3 py-1 text-xs font-bold text-bubblegum-foreground">Priority</span>;
   }
 
-  if (totalAttrition === 1) {
+  if (totalAttrition >= 5) {
     return <span className="rounded-full bg-sunny px-3 py-1 text-xs font-bold text-sunny-foreground">Review</span>;
+  }
+
+  if (totalAttrition > 0) {
+    return <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">Low</span>;
   }
 
   return <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-mint-foreground">Clean</span>;
