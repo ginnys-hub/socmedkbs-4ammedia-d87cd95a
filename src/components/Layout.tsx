@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Sparkles,
   Megaphone,
@@ -10,20 +10,37 @@ import {
   FolderTree,
   BookMarked,
   UserX,
+  ChevronDown,
+  type LucideIcon,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-const links = [
+const directLinks = [
   { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
   { to: "/csr-attrition", label: "CSR Attrition", icon: UserX },
+];
+
+const macroLinks = [
   { to: "/macros", label: "Macros", icon: MessageSquareText },
   { to: "/zendesk-macros", label: "Zendesk Macros", icon: FolderTree },
+];
+
+const resourceLinks = [
   { to: "/resources", label: "Resources", icon: BookOpen },
   { to: "/handbook", label: "Handbook", icon: BookMarked },
+  { to: "/translator", label: "Translator", icon: Languages },
 ];
 
 const Layout = () => {
+  const location = useLocation();
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
@@ -37,7 +54,7 @@ const Layout = () => {
             </span>
           </NavLink>
           <nav className="flex items-center gap-1">
-            {links.map(({ to, label, icon: Icon, end }) => (
+            {directLinks.map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -55,20 +72,20 @@ const Layout = () => {
                 <span className="hidden sm:inline">{label}</span>
               </NavLink>
             ))}
-            <NavLink
-              to="/translator"
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-soft"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )
-              }
-            >
-              <Languages className="h-4 w-4" />
-              <span className="hidden sm:inline">Translator</span>
-            </NavLink>
+
+            <NavDropdown
+              label="Macros"
+              icon={MessageSquareText}
+              links={macroLinks}
+              activePath={location.pathname}
+            />
+            <NavDropdown
+              label="Resources"
+              icon={BookOpen}
+              links={resourceLinks}
+              activePath={location.pathname}
+            />
+
             <a
               href="https://forms.gle/9fUouXo2xURBrSWc6"
               target="_blank"
@@ -88,6 +105,63 @@ const Layout = () => {
         Made with 💛 for the 4AM Media Social Media Team
       </footer>
     </div>
+  );
+};
+
+type NavDropdownLink = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+const NavDropdown = ({
+  label,
+  icon: Icon,
+  links,
+  activePath,
+}: {
+  label: string;
+  icon: LucideIcon;
+  links: NavDropdownLink[];
+  activePath: string;
+}) => {
+  const isActive = links.some((link) => activePath === link.to);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          isActive
+            ? "bg-primary text-primary-foreground shadow-soft"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        )}
+      >
+        <Icon className="h-4 w-4" />
+        <span className="hidden sm:inline">{label}</span>
+        <ChevronDown className="h-3.5 w-3.5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-52 rounded-2xl p-2">
+        {links.map(({ to, label: itemLabel, icon: ItemIcon }) => (
+          <DropdownMenuItem key={to} asChild className="rounded-xl p-0">
+            <NavLink
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )
+              }
+            >
+              <ItemIcon className="h-4 w-4" />
+              <span>{itemLabel}</span>
+            </NavLink>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
