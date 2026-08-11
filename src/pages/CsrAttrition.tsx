@@ -96,13 +96,6 @@ const attritionEmployeeRows = employeeRows.filter(
   ([, , , , , , , totalAttrition]) => totalAttrition > 0
 );
 
-const exclusions = [
-  { name: "Ian Kirby Villaruel", status: "Not listed on Attendance Counter" },
-  { name: "Karen Si", status: "Found and excluded" },
-  { name: "Aurabel de leon", status: "Not listed on Attendance Counter" },
-  { name: "James Ashley Baysac", status: "Not listed on Attendance Counter" },
-];
-
 const attritionRate = (row: { onTime: number; totalAttrition: number }) => {
   const scheduled = row.onTime + row.totalAttrition;
   return scheduled === 0 ? 0 : row.totalAttrition / scheduled;
@@ -129,8 +122,7 @@ const CsrAttrition = () => {
               Attrition Report
             </h1>
             <p className="mt-3 text-sm leading-6 text-mint-foreground/85 sm:text-base">
-              Attendance Counter summary for {reportWindow}, excluding Ian Kirby Villaruel,
-              Karen Si, Aurabel de leon, and James Ashley Baysac.
+              Attendance Counter summary for {reportWindow}, excluding 4 CSRs from the report.
             </p>
           </div>
 
@@ -244,21 +236,6 @@ const CsrAttrition = () => {
             ))}
           </tbody>
         </table>
-      </section>
-
-      <section className="rounded-3xl bg-card p-6 shadow-soft">
-        <div className="mb-4 flex items-center gap-2">
-          <UserX className="h-4 w-4 text-primary" />
-          <h2 className="font-bold">Excluded from report</h2>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {exclusions.map((item) => (
-            <div key={item.name} className="rounded-2xl bg-muted p-4">
-              <div className="font-semibold">{item.name}</div>
-              <div className="mt-1 text-sm text-muted-foreground">{item.status}</div>
-            </div>
-          ))}
-        </div>
       </section>
     </div>
   );
