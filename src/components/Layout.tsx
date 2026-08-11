@@ -40,6 +40,7 @@ const resourceLinks = [
 
 const Layout = () => {
   const location = useLocation();
+  const isCsrAttritionPage = location.pathname === "/csr-attrition";
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,7 +99,12 @@ const Layout = () => {
           </nav>
         </div>
       </header>
-      <main className="container py-8 animate-fade-in">
+      <main
+        className={cn(
+          "container py-8 animate-fade-in",
+          isCsrAttritionPage && "max-w-[1800px] px-4 sm:px-6 lg:px-8"
+        )}
+      >
         <Outlet />
       </main>
       <footer className="container py-8 text-center text-sm text-muted-foreground">
