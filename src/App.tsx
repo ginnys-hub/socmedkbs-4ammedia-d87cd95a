@@ -7,7 +7,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "./components/Layout";
 import Index from "./pages/Index.tsx";
 import Scorecards from "./pages/Scorecards.tsx";
-import CsrAttrition from "./pages/CsrAttrition.tsx";
 import Macros from "./pages/Macros.tsx";
 import ZendeskMacros from "./pages/ZendeskMacros.tsx";
 import Resources from "./pages/Resources.tsx";
@@ -39,7 +38,6 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
               <Route path="/scorecards" element={<Scorecards />} />
-              <Route path="/csr-attrition" element={<CsrAttrition />} />
               <Route path="/macros" element={<Macros />} />
               <Route path="/zendesk-macros" element={<ZendeskMacros />} />
               <Route path="/resources" element={<Resources />} />
