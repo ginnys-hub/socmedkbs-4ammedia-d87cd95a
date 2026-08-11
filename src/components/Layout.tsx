@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Sparkles,
-  Home,
+  Megaphone,
   BarChart3,
   MessageSquareText,
   FileText,
@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const directLinks = [
-  { to: "/", label: "Home", icon: Home, end: true },
+  { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
 ];
 
@@ -40,29 +40,18 @@ const Layout = () => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-background bg-[radial-gradient(circle_at_top_left,hsl(var(--secondary)/0.45),transparent_34rem)]">
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/92 shadow-soft backdrop-blur-xl">
-        <div className="container flex min-h-20 flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between">
-          <NavLink
-            to="/"
-            className="group flex min-w-0 items-center gap-3 font-bold hover-scale"
-          >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-hero shadow-soft">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
+        <div className="container flex h-16 items-center justify-between">
+          <NavLink to="/" className="flex items-center gap-2 font-bold text-lg hover-scale">
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-hero shadow-soft animate-float">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </span>
-            <span className="min-w-0">
-              <span className="block text-lg leading-tight tracking-tight text-foreground">
-                4AM CSR Desk
-              </span>
-              <span className="block truncate text-xs font-extrabold uppercase tracking-[0.22em] text-primary">
-                Social Media Knowledge Base
-              </span>
+            <span>
+              4AM <span className="text-primary">KBS</span>
             </span>
           </NavLink>
-          <nav
-            aria-label="Primary navigation"
-            className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/80 bg-card/85 p-1.5 shadow-soft"
-          >
+          <nav className="flex items-center gap-1">
             {directLinks.map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
@@ -70,7 +59,7 @@ const Layout = () => {
                 end={end}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition-all sm:px-4",
+                    "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-soft"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -99,7 +88,7 @@ const Layout = () => {
               href="https://forms.gle/9fUouXo2xURBrSWc6"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground sm:px-4"
+              className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">EOD Form Submission</span>
@@ -111,7 +100,7 @@ const Layout = () => {
         <Outlet />
       </main>
       <footer className="container py-8 text-center text-sm text-muted-foreground">
-        Made for the 4AM Media Social Media Team
+        Made with 💛 for the 4AM Media Social Media Team
       </footer>
     </div>
   );
@@ -140,7 +129,7 @@ const NavDropdown = ({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-4",
+          "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           isActive
             ? "bg-primary text-primary-foreground shadow-soft"
             : "text-muted-foreground hover:bg-muted hover:text-foreground"

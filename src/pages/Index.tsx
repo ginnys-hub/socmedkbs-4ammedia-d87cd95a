@@ -1,68 +1,30 @@
 import AnnouncementsBoard from "@/components/AnnouncementsBoard";
 import TopPerformerBanner from "@/components/TopPerformerBanner";
-import { ArrowRight, BarChart3, BookOpen, MessageSquareText } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
-    <div className="space-y-8">
-      <section className="grid gap-4 md:grid-cols-3 animate-fade-in">
-        <FeatureLink
-          to="/scorecards"
-          icon={BarChart3}
-          label="Scorecards"
-          text="Track weekly performance, quality, attendance, and achievement."
-          color="bg-gradient-mint text-mint-foreground"
-        />
-        <FeatureLink
-          to="/macros"
-          icon={MessageSquareText}
-          label="Macros"
-          text="Grab quick-response scripts for the conversations that repeat."
-          color="bg-gradient-bubblegum text-bubblegum-foreground"
-        />
-        <FeatureLink
-          to="/handbook"
-          icon={BookOpen}
-          label="Handbook"
-          text="Keep policy notes, SOPs, and escalation guidance close."
-          color="bg-gradient-sunny text-sunny-foreground"
-        />
+    <div className="space-y-10">
+      <section className="rounded-3xl bg-gradient-hero p-8 sm:p-12 shadow-pop animate-scale-in">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary-foreground/80 animate-fade-in-down">
+          4AM Media · Social Media Team
+        </p>
+        <h1 className="mt-2 text-4xl sm:text-5xl font-extrabold text-primary-foreground animate-fade-in stagger-1">
+          Welcome to the team KBS ✨
+        </h1>
+        <p className="mt-3 max-w-2xl text-primary-foreground/90 animate-fade-in stagger-2">
+          Everything our social media team needs in one place — announcements,
+          scorecards, and macros. Stay sharp, stay synced, stay caffeinated.
+        </p>
       </section>
 
-      <div className="animate-fade-in stagger-1">
+      <div className="animate-fade-in stagger-3">
         <TopPerformerBanner />
       </div>
-      <div className="animate-fade-in stagger-2">
+      <div className="animate-fade-in stagger-4">
         <AnnouncementsBoard />
       </div>
     </div>
   );
 };
-
-type FeatureLinkProps = {
-  to: string;
-  icon: typeof BarChart3;
-  label: string;
-  text: string;
-  color: string;
-};
-
-const FeatureLink = ({ to, icon: Icon, label, text, color }: FeatureLinkProps) => (
-  <Link
-    to={to}
-    className={`group rounded-2xl p-5 shadow-soft transition-all hover:-translate-y-1 hover:shadow-pop ${color}`}
-  >
-    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 shadow-soft">
-      <Icon className="h-6 w-6" />
-    </div>
-    <h2 className="text-xl font-extrabold tracking-tight">{label}</h2>
-    <p className="mt-2 text-sm font-semibold leading-6 opacity-80">{text}</p>
-    <span className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold">
-      Open
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </span>
-  </Link>
-);
 
 export default Index;
