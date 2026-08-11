@@ -92,6 +92,10 @@ const employeeRows = [
   ["Social Media Team", "TEAM GEORGINA", "Jessel Lebosada", 5, 0, 0, 0, 0],
 ] as const;
 
+const attritionEmployeeRows = employeeRows.filter(
+  ([, , , , , , , totalAttrition]) => totalAttrition > 0
+);
+
 const exclusions = [
   { name: "Ian Kirby Villaruel", status: "Not listed on Attendance Counter" },
   { name: "Karen Si", status: "Found and excluded" },
@@ -201,6 +205,8 @@ const CsrAttrition = () => {
 
       <ReportTable title="Team Summary" rows={teamRows} firstColumn="Team" firstKey="team" />
 
+      <AttritionCommitters rows={attritionEmployeeRows} />
+
       <section className="overflow-x-auto rounded-3xl bg-card shadow-soft">
         <div className="flex items-center justify-between gap-3 border-b border-border p-5">
           <div>
@@ -308,6 +314,50 @@ const ReportTable = <T extends RowWithTotals>({
             <td className="p-3 text-right">{row.late}</td>
             <td className="p-3 text-right font-bold text-primary">{row.totalAttrition}</td>
             <td className="p-3 text-right">{formatPercent(attritionRate(row))}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+);
+
+const AttritionCommitters = ({ rows }: { rows: ReadonlyArray<(typeof employeeRows)[number]> }) => (
+  <section className="overflow-x-auto rounded-3xl bg-card shadow-soft">
+    <div className="flex items-center justify-between gap-3 border-b border-border p-5">
+      <div>
+        <h2 className="font-bold">CSRs with Attrition</h2>
+        <p className="text-sm text-muted-foreground">
+          Employees with at least one absent, undertime, or late mark during the report week.
+        </p>
+      </div>
+      <span className="rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">
+        {rows.length} CSRs
+      </span>
+    </div>
+    <table className="w-full min-w-[820px] text-sm">
+      <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
+        <tr>
+          <th className="p-3 text-left">CSR</th>
+          <th className="p-3 text-left">Department</th>
+          <th className="p-3 text-left">Team</th>
+          <th className="p-3 text-right">Absent</th>
+          <th className="p-3 text-right">Undertime</th>
+          <th className="p-3 text-right">Late</th>
+          <th className="p-3 text-right">Total Attrition</th>
+          <th className="p-3 text-right">Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(([department, team, employee, onTime, absent, undertime, late, totalAttrition]) => (
+          <tr key={`${team}-${employee}-attrition`} className="border-t border-border transition-colors hover:bg-muted/40">
+            <td className="p-3 font-semibold">{employee}</td>
+            <td className="p-3 text-muted-foreground">{department}</td>
+            <td className="p-3 font-medium">{team}</td>
+            <td className="p-3 text-right">{absent}</td>
+            <td className="p-3 text-right">{undertime}</td>
+            <td className="p-3 text-right">{late}</td>
+            <td className="p-3 text-right font-bold text-primary">{totalAttrition}</td>
+            <td className="p-3 text-right">{formatPercent(attritionRate({ onTime, totalAttrition }))}</td>
           </tr>
         ))}
       </tbody>
