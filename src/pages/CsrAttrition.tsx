@@ -357,6 +357,21 @@ const buildTotals = (rows: ReadonlyArray<EmployeeRow>) =>
     { onTime: 0, absent: 0, undertime: 0, late: 0, totalAttrition: 0 }
   );
 
+const groupRowsByTeam = (rows: ReadonlyArray<EmployeeRow>) => {
+  const groups = new Map<string, EmployeeRow[]>();
+
+  rows.forEach((row) => {
+    const team = row[1];
+    groups.set(team, [...(groups.get(team) ?? []), row]);
+  });
+
+  return Array.from(groups.entries()).map(([team, teamMembers]) => ({
+    team,
+    rows: [...teamMembers].sort((a, b) => b[7] - a[7] || a[2].localeCompare(b[2])),
+    totals: buildTotals(teamMembers),
+  }));
+};
+
 const ReportTable = <T extends RowWithTotals>({
   title,
   rows,
@@ -446,54 +461,130 @@ const AttritionCommitters = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => 
   </section>
 );
 
-const EmployeeDetail = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => (
-  <section className="overflow-x-auto rounded-3xl bg-card shadow-soft">
-    <div className="flex items-center justify-between gap-3 border-b border-border p-5">
-      <div>
-        <h2 className="font-bold">Employee Detail</h2>
-        <p className="text-sm text-muted-foreground">
-          Total Attrition equals absent plus undertime plus late.
-        </p>
+const EmployeeDetail = ({ rows }: { rows: ReadonlyArray<EmployeeRow> }) => {
+  const groups = groupRowsByTeam(rows);
+
+  return (
+    <section className="rounded-3xl bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-2 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-bold">CSR Attendance Review</h2>
+          <p className="text-sm text-muted-foreground">
+            Team-grouped cards for a faster read on clean weeks, review items, and the exact attrition mix.
+          </p>
+        </div>
+        <span className="w-fit rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">
+          {rows.length} records
+        </span>
       </div>
-      <span className="rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">
-        {rows.length} records
-      </span>
-    </div>
-    {rows.length === 0 ? (
-      <EmptyState message="No employee records match the current filters." />
-    ) : (
-      <table className="w-full min-w-[860px] text-sm">
-        <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
-          <tr>
-            <th className="p-3 text-left">Department</th>
-            <th className="p-3 text-left">Team</th>
-            <th className="p-3 text-left">Employee</th>
-            <th className="p-3 text-right">On Time</th>
-            <th className="p-3 text-right">Absent</th>
-            <th className="p-3 text-right">Undertime</th>
-            <th className="p-3 text-right">Late</th>
-            <th className="p-3 text-right">Total Attrition</th>
-            <th className="p-3 text-right">Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(([department, team, employee, onTime, absent, undertime, late, totalAttrition]) => (
-            <tr key={`${team}-${employee}`} className="border-t border-border transition-colors hover:bg-muted/40">
-              <td className="p-3 text-muted-foreground">{department}</td>
-              <td className="p-3 font-medium">{team}</td>
-              <td className="p-3 font-semibold">{employee}</td>
-              <td className="p-3 text-right">{onTime}</td>
-              <td className="p-3 text-right">{absent}</td>
-              <td className="p-3 text-right">{undertime}</td>
-              <td className="p-3 text-right">{late}</td>
-              <td className="p-3 text-right font-bold text-primary">{totalAttrition}</td>
-              <td className="p-3 text-right">{formatPercent(attritionRate({ onTime, totalAttrition }))}</td>
-            </tr>
+
+      {rows.length === 0 ? (
+        <EmptyState message="No employee records match the current filters." />
+      ) : (
+        <div className="mt-5 space-y-5">
+          {groups.map(({ team, rows: teamMembers, totals }) => (
+            <div key={team} className="rounded-2xl border border-border bg-background/60 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="font-extrabold">{team}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {teamMembers.length} CSRs · {totals.totalAttrition} attrition · {formatPercent(attritionRate(totals))} rate
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs font-bold">
+                  <MetricChip label="Absent" value={totals.absent} />
+                  <MetricChip label="Undertime" value={totals.undertime} />
+                  <MetricChip label="Late" value={totals.late} />
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {teamMembers.map((row) => (
+                  <CsrReviewCard key={`${row[1]}-${row[2]}`} row={row} />
+                ))}
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
-    )}
-  </section>
+        </div>
+      )}
+    </section>
+  );
+};
+
+const CsrReviewCard = ({ row }: { row: EmployeeRow }) => {
+  const [department, team, employee, onTime, absent, undertime, late, totalAttrition] = row;
+  const scheduled = onTime + totalAttrition;
+  const onTimeRate = scheduled === 0 ? 0 : onTime / scheduled;
+  const needsReview = totalAttrition > 0;
+  const highAttention = totalAttrition >= 2;
+
+  return (
+    <article className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-soft">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h4 className="font-bold leading-tight">{employee}</h4>
+          <p className="mt-1 text-xs text-muted-foreground">{department} · {team}</p>
+        </div>
+        <StatusPill totalAttrition={totalAttrition} />
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+        <div className="rounded-xl bg-muted p-3">
+          <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">On Time</div>
+          <div className="mt-1 text-xl font-extrabold">{onTime}</div>
+        </div>
+        <div className="rounded-xl bg-muted p-3">
+          <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Attrition</div>
+          <div className={`mt-1 text-xl font-extrabold ${needsReview ? "text-primary" : ""}`}>{totalAttrition}</div>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="mb-1 flex items-center justify-between text-xs font-semibold text-muted-foreground">
+          <span>On-time share</span>
+          <span>{formatPercent(onTimeRate)}</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-muted">
+          <div
+            className={`h-full rounded-full ${highAttention ? "bg-bubblegum" : needsReview ? "bg-sunny" : "bg-mint"}`}
+            style={{ width: `${Math.max(onTimeRate * 100, scheduled === 0 ? 0 : 8)}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {totalAttrition === 0 ? (
+          <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-mint-foreground">
+            No attrition recorded
+          </span>
+        ) : (
+          <>
+            {absent > 0 && <MetricChip label="Absent" value={absent} />}
+            {undertime > 0 && <MetricChip label="Undertime" value={undertime} />}
+            {late > 0 && <MetricChip label="Late" value={late} />}
+          </>
+        )}
+      </div>
+    </article>
+  );
+};
+
+const StatusPill = ({ totalAttrition }: { totalAttrition: number }) => {
+  if (totalAttrition >= 2) {
+    return <span className="rounded-full bg-bubblegum px-3 py-1 text-xs font-bold text-bubblegum-foreground">Priority</span>;
+  }
+
+  if (totalAttrition === 1) {
+    return <span className="rounded-full bg-sunny px-3 py-1 text-xs font-bold text-sunny-foreground">Review</span>;
+  }
+
+  return <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-mint-foreground">Clean</span>;
+};
+
+const MetricChip = ({ label, value }: { label: string; value: number }) => (
+  <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
+    {label}: {value}
+  </span>
 );
 
 const EmptyState = ({ message }: { message: string }) => (
