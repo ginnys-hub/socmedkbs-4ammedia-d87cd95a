@@ -114,20 +114,38 @@ const HourlyTracker = () => {
 
       {isLoading ? (
         <Skeleton className="h-96 rounded-3xl" />
-      ) : isError || !stats || !forecast || !heatmap || !stats.todayDate ? (
+      ) : !stats || !forecast || !heatmap || !stats.todayDate ? (
         <div className="rounded-3xl bg-muted p-8 text-center text-muted-foreground">
           <AlertTriangle className="mx-auto mb-2 h-6 w-6" />
           Couldn't load the live tracker
           {error instanceof Error ? `: ${error.message}` : "."} Make sure the mirror sheet is
-          shared as "Anyone with the link can view".
+          shared as "Anyone with the link can view". Retrying automatically every minute.
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          {/* Keep showing the last good pull if a background refresh fails, rather than blanking the page. */}
+          {isError && (
+            <div className="flex items-center gap-2 rounded-2xl bg-sunny/40 px-4 py-2 text-sm text-sunny-foreground">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              Live refresh failed just now — showing data as of{" "}
+              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "the last successful pull"}
+              . Retrying automatically.
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5 font-semibold text-mint-foreground">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-mint" />
+              </span>
+              Live
+            </span>
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
             <span>
               Showing {formatDateLabel(stats.todayDate)} · last refreshed{" "}
-              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "—"}
+              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "—"} · auto-updates every
+              minute
             </span>
           </div>
 
