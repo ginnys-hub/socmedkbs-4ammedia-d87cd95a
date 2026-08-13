@@ -3,6 +3,7 @@ import {
   Sparkles,
   Megaphone,
   BarChart3,
+  Gauge,
   MessageSquareText,
   FileText,
   BookOpen,
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 const directLinks = [
   { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
+  { to: "/hourly-tracker", label: "Hourly Tracker", icon: Gauge },
 ];
 
 const macroLinks = [

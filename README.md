@@ -14,6 +14,18 @@ It includes:
 - search by macro path or macro name
 - detail panel showing the selected macro's exact Zendesk path
 
+## Hourly Ticket Tracker
+
+The `/hourly-tracker` page is a live dashboard for the "FB Open Tickets Log" sheet: open-ticket
+counts by hour, compared against the historical average for that hour, with a correlation score
+against the typical daily pattern.
+
+It polls the CSV export of a small public mirror sheet (`src/lib/hourlyTicketLog.ts`,
+`MIRROR_SHEET_ID`) that re-publishes just that one tab via `IMPORTRANGE` from the private source
+spreadsheet, so the original sheet (with its other, non-public tabs) never has to be shared
+publicly. If the mirror sheet's sharing ever gets reset to private, or the source tab is renamed,
+the page will show a "Couldn't load the live tracker" message instead of data.
+
 ## Development
 
 ```bash
