@@ -12,7 +12,11 @@
 // permissive CORS headers. `/export` is meant for direct browser downloads
 // and isn't reliably fetchable cross-origin from client-side JS.
 export const MIRROR_SHEET_ID = "1BbofIj4dSH71dxM88GoYrQ3kf83CmlpWVRWJ2wb6xPQ";
-export const MIRROR_CSV_URL = `https://docs.google.com/spreadsheets/d/${MIRROR_SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+// The mirror's single tab did NOT end up as gid 0 (Sheets assigned it its own
+// gid when the file was created) - this must match the tab's real gid or the
+// gviz endpoint silently fails to find matching data.
+export const MIRROR_SHEET_GID = "556196617";
+export const MIRROR_CSV_URL = `https://docs.google.com/spreadsheets/d/${MIRROR_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${MIRROR_SHEET_GID}`;
 export const SOURCE_SHEET_URL =
   "https://docs.google.com/spreadsheets/d/1jf_h7l-yP8GXHOv_v9OyNPh3jMGAQLraldAk-qPIgzQ/edit?gid=294927594#gid=294927594";
 
