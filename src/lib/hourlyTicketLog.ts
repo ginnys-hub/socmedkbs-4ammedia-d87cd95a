@@ -5,8 +5,14 @@
 // (owned by the team, shared "Anyone with the link can view") re-publishes
 // just the "FB Open Tickets Log" tab via an IMPORTRANGE formula, refreshed by
 // Google Sheets on its own cadence. We poll that mirror's CSV export here.
+//
+// Uses the `gviz/tq` endpoint rather than `/export?format=csv`: the gviz
+// endpoint is part of the Google Visualization API and is built for exactly
+// this (embedding a public sheet's data into another site), so it sends
+// permissive CORS headers. `/export` is meant for direct browser downloads
+// and isn't reliably fetchable cross-origin from client-side JS.
 export const MIRROR_SHEET_ID = "1BbofIj4dSH71dxM88GoYrQ3kf83CmlpWVRWJ2wb6xPQ";
-export const MIRROR_CSV_URL = `https://docs.google.com/spreadsheets/d/${MIRROR_SHEET_ID}/export?format=csv`;
+export const MIRROR_CSV_URL = `https://docs.google.com/spreadsheets/d/${MIRROR_SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
 export const SOURCE_SHEET_URL =
   "https://docs.google.com/spreadsheets/d/1jf_h7l-yP8GXHOv_v9OyNPh3jMGAQLraldAk-qPIgzQ/edit?gid=294927594#gid=294927594";
 
