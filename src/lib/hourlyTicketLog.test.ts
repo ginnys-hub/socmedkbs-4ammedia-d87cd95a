@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  computeForecast,
   computeHourlyStats,
+  computeWeekdayHourHeatmap,
   dateKey,
   parseCsv,
   parseTicketLogCsv,
@@ -120,5 +122,54 @@ describe("pearsonCorrelation", () => {
   it("is 1 for perfectly correlated series and null for constant input", () => {
     expect(pearsonCorrelation([1, 2, 3], [2, 4, 6])).toBeCloseTo(1);
     expect(pearsonCorrelation([5, 5, 5], [1, 2, 3])).toBeNull();
+  });
+});
+
+describe("computeForecast", () => {
+  it("fills unlogged hours with the average scaled by today's pace, and totals the full day", () => {
+    const csv = buildCsv(DATE_SERIALS, HOUR_SERIALS);
+    const stats = computeHourlyStats(parseTicketLogCsv(csv), 28);
+    const forecast = computeForecast(stats);
+
+    expect(forecast.paceRatio).not.toBeNull();
+    // Every hour is either a real value or a projection, so the day is fully known.
+    expect(forecast.byHour.every((v) => v !== null)).toBe(true);
+    expect(forecast.projectedTotal).not.toBeNull();
+    // Hours already logged today keep their real value, not a projection.
+    stats.today.forEach((v, hour) => {
+      if (v !== null) expect(forecast.byHour[hour]).toBe(v);
+    });
+  });
+
+  it("returns nulls when there's no historical average to project from", () => {
+    const forecast = computeForecast({
+      todayDate: new Date(),
+      today: Array(24).fill(null),
+      historicalAverage: Array(24).fill(null),
+      historicalMin: Array(24).fill(null),
+      historicalMax: Array(24).fill(null),
+      daysInAverage: 0,
+      correlation: null,
+      latestHour: null,
+      latestCount: null,
+    });
+    expect(forecast.paceRatio).toBeNull();
+    expect(forecast.projectedTotal).toBeNull();
+  });
+});
+
+describe("computeWeekdayHourHeatmap", () => {
+  it("buckets historical (non-today) hours into 4-hour blocks by weekday", () => {
+    const csv = buildCsv(DATE_SERIALS, HOUR_SERIALS);
+    const heatmap = computeWeekdayHourHeatmap(parseTicketLogCsv(csv), 28);
+
+    expect(heatmap.rowLabels).toHaveLength(6);
+    expect(heatmap.colLabels).toEqual(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
+    // Aug 8, 2026 is a Saturday; hour 0 (0.0) went into the first 4-hour block.
+    const satCol = heatmap.colLabels.indexOf("Sat");
+    expect(heatmap.values[0][satCol]).not.toBeNull();
+    // Today (Aug 12) is excluded from the heatmap.
+    const wedCol = heatmap.colLabels.indexOf("Wed");
+    expect(heatmap.values.some((row) => row[wedCol] !== null)).toBe(false);
   });
 });

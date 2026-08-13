@@ -174,6 +174,10 @@ export type HourlyStats = {
   today: (number | null)[];
   /** Average open ticket count per hour across the lookback window (excluding today). */
   historicalAverage: (number | null)[];
+  /** Lowest logged count per hour across the lookback window. */
+  historicalMin: (number | null)[];
+  /** Highest logged count per hour across the lookback window. */
+  historicalMax: (number | null)[];
   /** Number of prior days actually averaged into historicalAverage. */
   daysInAverage: number;
   /** Pearson correlation between today's logged hours and the historical average for those same hours. */
@@ -212,6 +216,8 @@ export const computeHourlyStats = (data: TicketLogData, lookbackDays = 28): Hour
       todayDate: null,
       today: Array(HOURS_PER_DAY).fill(null),
       historicalAverage: Array(HOURS_PER_DAY).fill(null),
+      historicalMin: Array(HOURS_PER_DAY).fill(null),
+      historicalMax: Array(HOURS_PER_DAY).fill(null),
       daysInAverage: 0,
       correlation: null,
       latestHour: null,
@@ -233,6 +239,8 @@ export const computeHourlyStats = (data: TicketLogData, lookbackDays = 28): Hour
       todayDate: null,
       today: Array(HOURS_PER_DAY).fill(null),
       historicalAverage: Array(HOURS_PER_DAY).fill(null),
+      historicalMin: Array(HOURS_PER_DAY).fill(null),
+      historicalMax: Array(HOURS_PER_DAY).fill(null),
       daysInAverage: 0,
       correlation: null,
       latestHour: null,
@@ -248,11 +256,15 @@ export const computeHourlyStats = (data: TicketLogData, lookbackDays = 28): Hour
   for (let i = lookbackStart; i < todayIndex; i += 1) historyIndices.push(i);
 
   const historicalAverage: (number | null)[] = Array(HOURS_PER_DAY).fill(null);
+  const historicalMin: (number | null)[] = Array(HOURS_PER_DAY).fill(null);
+  const historicalMax: (number | null)[] = Array(HOURS_PER_DAY).fill(null);
   for (let hour = 0; hour < HOURS_PER_DAY; hour += 1) {
     const values = historyIndices
       .map((i) => matrix[hour][i])
       .filter((v): v is number => v !== null && v !== undefined);
     historicalAverage[hour] = values.length > 0 ? mean(values) : null;
+    historicalMin[hour] = values.length > 0 ? Math.min(...values) : null;
+    historicalMax[hour] = values.length > 0 ? Math.max(...values) : null;
   }
 
   const loggedHours: number[] = [];
@@ -282,9 +294,84 @@ export const computeHourlyStats = (data: TicketLogData, lookbackDays = 28): Hour
     todayDate,
     today,
     historicalAverage,
+    historicalMin,
+    historicalMax,
     daysInAverage: historyIndices.length,
     correlation,
     latestHour,
     latestCount,
   };
+};
+
+export type ForecastResult = {
+  /** How today's logged-so-far pace compares to the historical pace over the same hours (1 = right on typical). */
+  paceRatio: number | null;
+  /** Projected count per hour: the actual logged value where known, else average scaled by paceRatio. */
+  byHour: (number | null)[];
+  /** Sum of the projected day, once every hour has either a real value or a projection. */
+  projectedTotal: number | null;
+};
+
+/** A simple pace-adjusted seasonal forecast: scale the historical average curve by how today has tracked so far. */
+export const computeForecast = (stats: HourlyStats): ForecastResult => {
+  const elapsed = stats.today
+    .map((v, hour) => ({ hour, v, avg: stats.historicalAverage[hour] }))
+    .filter((e): e is { hour: number; v: number; avg: number } => e.v !== null && e.avg !== null);
+
+  const elapsedTodaySum = elapsed.reduce((sum, e) => sum + e.v, 0);
+  const elapsedAvgSum = elapsed.reduce((sum, e) => sum + e.avg, 0);
+  const paceRatio = elapsed.length > 0 && elapsedAvgSum > 0 ? elapsedTodaySum / elapsedAvgSum : null;
+
+  const byHour = stats.today.map((v, hour) => {
+    if (v !== null) return v;
+    const avg = stats.historicalAverage[hour];
+    if (avg === null) return null;
+    return paceRatio !== null ? avg * paceRatio : avg;
+  });
+
+  const known = byHour.filter((v): v is number => v !== null);
+  const projectedTotal = known.length === HOURS_PER_DAY ? known.reduce((sum, v) => sum + v, 0) : null;
+
+  return { paceRatio, byHour, projectedTotal };
+};
+
+export type Heatmap = {
+  /** 4-hour block labels, e.g. "12–4 AM". */
+  rowLabels: string[];
+  /** Weekday labels, Sunday first. */
+  colLabels: string[];
+  /** values[row][col] = average open ticket count for that block/weekday across the lookback window. */
+  values: (number | null)[][];
+};
+
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const BLOCK_SIZE = 4;
+const BLOCK_ROW_LABELS = Array.from({ length: HOURS_PER_DAY / BLOCK_SIZE }, (_, i) => {
+  const start = i * BLOCK_SIZE;
+  const end = start + BLOCK_SIZE;
+  return `${formatHourLabel(start).replace(" ", "")}–${formatHourLabel(end % HOURS_PER_DAY).replace(" ", "")}`;
+});
+
+/** Average open-ticket count by (4-hour block × weekday) over the lookback window, for spotting the typical pattern. */
+export const computeWeekdayHourHeatmap = (data: TicketLogData, lookbackDays = 84): Heatmap => {
+  const { dates, matrix } = data;
+  const cutoff = dates.length - 1 - lookbackDays;
+  const buckets: number[][][] = Array.from({ length: BLOCK_ROW_LABELS.length }, () =>
+    Array.from({ length: 7 }, () => [])
+  );
+
+  dates.forEach((date, dateIndex) => {
+    if (dateIndex >= dates.length - 1) return; // exclude today (still in progress)
+    if (dateIndex < Math.max(0, cutoff)) return;
+    const weekday = date.getUTCDay();
+    for (let hour = 0; hour < HOURS_PER_DAY; hour += 1) {
+      const value = matrix[hour][dateIndex];
+      if (value === null || value === undefined) continue;
+      buckets[Math.floor(hour / BLOCK_SIZE)][weekday].push(value);
+    }
+  });
+
+  const values = buckets.map((row) => row.map((cell) => (cell.length > 0 ? mean(cell) : null)));
+
+  return { rowLabels: BLOCK_ROW_LABELS, colLabels: WEEKDAY_LABELS, values };
 };
