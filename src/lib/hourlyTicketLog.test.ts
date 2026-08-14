@@ -5,6 +5,7 @@ import {
   computeWeekdayHourHeatmap,
   dateKey,
   parseCsv,
+  parseDateCell,
   parseTicketLogCsv,
   pearsonCorrelation,
 } from "./hourlyTicketLog";
@@ -100,11 +101,72 @@ describe("parseTicketLogCsv", () => {
   });
 });
 
+describe("parseTicketLogCsv - live layout variants", () => {
+  it("finds the date row by its values, not a 'Date' label, when the row above it has weekday names instead", () => {
+    // The sheet has shown up both ways: sometimes a blank cell or literal
+    // "Date" label sits above the date row, sometimes weekday abbreviations
+    // do (e.g. "Tue,Wed,Thu,..."). Neither should stop parsing.
+    const ampmHourLabels = Array.from(
+      { length: 24 },
+      (_, h) => `${h === 0 ? 12 : h > 12 ? h - 12 : h}:00 ${h < 12 ? "am" : "pm"}`
+    );
+    const rows = [
+      "",
+      "Number of open tickets,,",
+      ",Tue,Wed,Thu", // weekday names, not "Date"
+      ",8/11,8/12,8/13",
+      ...ampmHourLabels.map((label, h) => (h === 0 ? `${label},1,2,3` : `${label},0,0,0`)),
+    ];
+    const { dates, matrix } = parseTicketLogCsv(rows.join("\n"));
+    expect(dates).toHaveLength(3);
+    expect(matrix[0]).toEqual([1, 2, 3]);
+  });
+
+  it("parses 12-hour AM/PM hour labels correctly (this is how the sheet actually formats them)", () => {
+    const rows = [
+      "",
+      "Number of open tickets,,",
+      ",Date,",
+      ",8/12,8/13",
+      "12:00 am,1,10", // hour 0
+      "1:00 am,1,11",
+      ...Array.from({ length: 10 }, (_, i) => `${i + 2}:00 am,0,0`), // hours 2-11
+      "12:00 pm,1,12", // hour 12 (noon)
+      "1:00 pm,1,13", // hour 13
+      ...Array.from({ length: 10 }, (_, i) => `${i + 2}:00 pm,0,0`), // hours 14-23
+    ];
+    const { matrix } = parseTicketLogCsv(rows.join("\n"));
+    expect(matrix[0]).toEqual([1, 10]); // 12:00 am
+    expect(matrix[1]).toEqual([1, 11]); // 1:00 am
+    expect(matrix[12]).toEqual([1, 12]); // 12:00 pm (noon)
+    expect(matrix[13]).toEqual([1, 13]); // 1:00 pm
+  });
+
+});
+
+describe("parseDateCell - bare 'M/D' year inference", () => {
+  it("assumes the current year when no year is present (Sheets' own default-format convention)", () => {
+    const now = new Date("2026-06-15T00:00:00Z");
+    expect(dateKey(parseDateCell("8/13", now)!)).toBe("2026-08-13");
+  });
+
+  it("wraps to the previous year for a date far in the future (e.g. late-Dec dates viewed in early January)", () => {
+    const now = new Date("2027-01-03T00:00:00Z");
+    expect(dateKey(parseDateCell("12/29", now)!)).toBe("2026-12-29");
+  });
+
+  it("wraps to the next year for a date far in the past (viewing early-Jan dates in late December)", () => {
+    const now = new Date("2026-12-29T00:00:00Z");
+    expect(dateKey(parseDateCell("1/3", now)!)).toBe("2027-01-03");
+  });
+});
+
 describe("computeHourlyStats", () => {
-  it("treats the last date column with any data as today, keeps zeros distinct from unlogged hours, and correlates against history", () => {
+  it("falls back to the last date column with any data when 'now' isn't in the sheet yet, keeps zeros distinct from unlogged hours, and correlates against history", () => {
     const csv = buildCsv(DATE_SERIALS, HOUR_SERIALS);
     const data = parseTicketLogCsv(csv);
-    const stats = computeHourlyStats(data, 28);
+    // "now" is well past every column in this fixture, so there's no exact match.
+    const stats = computeHourlyStats(data, 28, new Date("2026-09-01T00:00:00Z"));
 
     expect(stats.todayDate && dateKey(stats.todayDate)).toBe("2026-08-12");
     expect(stats.daysInAverage).toBe(4); // Aug 8-11
@@ -115,6 +177,34 @@ describe("computeHourlyStats", () => {
     expect(stats.correlation).not.toBeNull();
     expect(stats.correlation as number).toBeGreaterThan(-1);
     expect(stats.correlation as number).toBeLessThanOrEqual(1);
+  });
+
+  it("prefers the column matching today's actual date over a later column that only has stray data", () => {
+    // Mirrors a real incident: hours 0-3 got logged into tomorrow's column
+    // (an overnight-shift mistake) while today's own column already has a
+    // full day logged. "Today" should still be today, not that stray column.
+    const dates = ["8/13", "8/14"];
+    const hours = Array.from({ length: 24 }, (_, h) => `${h === 0 ? 12 : h > 12 ? h - 12 : h}:00 ${h < 12 ? "am" : "pm"}`);
+    // Hours 0-4 unlogged, hours 5-23 logged (19 real values) - matches the
+    // real incident this is modeled on.
+    const today13 = ["", "", "", "", "", 19, 2, 9, 3, 7, 16, 12, 13, 16, 11, 0, 0, 0, 0, 0, 0, 0, 2, 4];
+    const stray14 = [5, 10, 13, 2];
+    const rows = [
+      "",
+      "Number of open tickets,,",
+      ",Tue,Wed",
+      `,${dates.join(",")}`,
+      ...hours.map((h, i) => {
+        const v13 = today13[i];
+        const v14 = i < stray14.length ? stray14[i] : "";
+        return `${h},${v13},${v14}`;
+      }),
+    ];
+    const data = parseTicketLogCsv(rows.join("\n"));
+    const stats = computeHourlyStats(data, 28, new Date("2026-08-13T12:00:00Z"));
+
+    expect(stats.todayDate && dateKey(stats.todayDate)).toBe("2026-08-13");
+    expect(stats.today.filter((v) => v !== null)).toHaveLength(19);
   });
 });
 

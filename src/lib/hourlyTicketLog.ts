@@ -82,8 +82,15 @@ export const parseCsv = (text: string): string[][] => {
 const SHEETS_EPOCH_MS = Date.UTC(1899, 11, 30);
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-/** Parses a date-column header cell. Handles both a formatted date string and a raw Sheets serial number. */
-const parseDateCell = (raw: string): Date | null => {
+// Sheets' default short-date format ("M/d") drops the year whenever it
+// matches the current year, and JS's own `Date` parser is no help here: for a
+// bare "M/D" string V8 assumes the year 2001 rather than "now" (verified
+// directly - `new Date("4/21")` -> 2001-04-21). So a bare M/D is parsed by
+// hand against "now", with a +/-200-day wrap so dates near a year boundary
+// (e.g. late-December dates viewed in early January) still land correctly.
+const YEAR_WRAP_DAYS = 200;
+
+export const parseDateCell = (raw: string, now: Date = new Date()): Date | null => {
   const trimmed = raw.trim();
   if (!trimmed) return null;
 
@@ -92,14 +99,58 @@ const parseDateCell = (raw: string): Date | null => {
     return new Date(SHEETS_EPOCH_MS + Math.round(asNumber) * MS_PER_DAY);
   }
 
-  const parsed = new Date(trimmed);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+  const withYear = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (withYear) {
+    const [, m, d, y] = withYear;
+    const year = y.length === 2 ? 2000 + Number(y) : Number(y);
+    const date = new Date(Date.UTC(year, Number(m) - 1, Number(d)));
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  const bare = trimmed.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (bare) {
+    const [, m, d] = bare;
+    const month = Number(m) - 1;
+    const day = Number(d);
+    const currentYear = now.getUTCFullYear();
+    let date = new Date(Date.UTC(currentYear, month, day));
+    if (Number.isNaN(date.getTime())) return null;
+
+    const dayDiff = (date.getTime() - now.getTime()) / MS_PER_DAY;
+    if (dayDiff > YEAR_WRAP_DAYS) {
+      date = new Date(Date.UTC(currentYear - 1, month, day));
+    } else if (dayDiff < -YEAR_WRAP_DAYS) {
+      date = new Date(Date.UTC(currentYear + 1, month, day));
+    }
+    return date;
+  }
+
+  // ISO "YYYY-MM-DD", just in case - deliberately NOT falling back to the
+  // generic `new Date(trimmed)` beyond this: it happily "parses" a bare small
+  // integer like a ticket count ("0", "12") as a month-of-year date, which
+  // caused false-positive date-row detection on ordinary data rows.
+  const iso = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const [, y, m, d] = iso;
+    const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  return null;
 };
 
-/** Parses an hour-of-day row label cell (e.g. "0:00", "13:00", or a Sheets time-of-day fraction). */
+/** Parses an hour-of-day row label cell: 12-hour "12:00 am"/"1:00 pm", 24-hour "0:00"/"13:00", or a Sheets time fraction. */
 const parseHourCell = (raw: string): number | null => {
   const trimmed = raw.trim();
   if (!trimmed) return null;
+
+  const ampmMatch = trimmed.match(/^(\d{1,2}):\d{2}(?::\d{2})?\s*([ap])\.?m\.?$/i);
+  if (ampmMatch) {
+    const hour12 = Number(ampmMatch[1]) % 12;
+    const isPm = ampmMatch[2].toLowerCase() === "p";
+    const hour = isPm ? hour12 + 12 : hour12;
+    return hour >= 0 && hour < HOURS_PER_DAY ? hour : null;
+  }
 
   const colonMatch = trimmed.match(/^(\d{1,2}):(\d{2})/);
   if (colonMatch) {
@@ -127,16 +178,26 @@ const parseCountCell = (raw: string): number | null => {
   return Number.isFinite(value) ? value : null;
 };
 
-/** Turns the raw CSV grid into a dates[] + matrix[hour][dateIndex] shape, per the sheet's known layout. */
+/**
+ * Turns the raw CSV grid into a dates[] + matrix[hour][dateIndex] shape.
+ *
+ * Finds the date row by content (two-plus consecutive parseable dates
+ * starting at column B), not by a literal "Date" label - the sheet has
+ * shown up with a blank label, a "Date" label, and a weekday-name row in
+ * that spot on different days, so matching on the actual date values is the
+ * only thing that's held up across those layout changes.
+ */
 export const parseTicketLogCsv = (csvText: string): TicketLogData => {
   const rows = parseCsv(csvText);
 
-  const dateRowIndex = rows.findIndex((row) => row[1]?.trim() === "Date");
-  if (dateRowIndex === -1 || !rows[dateRowIndex + 1]) {
+  const dateRowIndex = rows.findIndex(
+    (row) => parseDateCell(row[1] ?? "") !== null && parseDateCell(row[2] ?? "") !== null
+  );
+  if (dateRowIndex === -1) {
     return { dates: [], matrix: Array.from({ length: HOURS_PER_DAY }, () => []) };
   }
 
-  const dateRow = rows[dateRowIndex + 1];
+  const dateRow = rows[dateRowIndex];
   const dateColumns: { colIndex: number; date: Date }[] = [];
   for (let col = 1; col < dateRow.length; col += 1) {
     const date = parseDateCell(dateRow[col] ?? "");
@@ -144,7 +205,7 @@ export const parseTicketLogCsv = (csvText: string): TicketLogData => {
   }
 
   const matrix: (number | null)[][] = Array.from({ length: HOURS_PER_DAY }, () => []);
-  const hourRows = rows.slice(dateRowIndex + 2, dateRowIndex + 2 + HOURS_PER_DAY);
+  const hourRows = rows.slice(dateRowIndex + 1, dateRowIndex + 1 + HOURS_PER_DAY);
 
   hourRows.forEach((hourRow) => {
     const hour = parseHourCell(hourRow[0] ?? "");
@@ -218,7 +279,11 @@ export const pearsonCorrelation = (a: number[], b: number[]): number | null => {
   return denom === 0 ? null : numerator / denom;
 };
 
-export const computeHourlyStats = (data: TicketLogData, lookbackDays = 28): HourlyStats => {
+export const computeHourlyStats = (
+  data: TicketLogData,
+  lookbackDays = 28,
+  now: Date = new Date()
+): HourlyStats => {
   const { dates, matrix } = data;
 
   if (dates.length === 0) {
@@ -235,12 +300,21 @@ export const computeHourlyStats = (data: TicketLogData, lookbackDays = 28): Hour
     };
   }
 
-  // Most recent date column that has at least one logged hour is treated as "today".
-  let todayIndex = -1;
-  for (let i = dates.length - 1; i >= 0; i -= 1) {
-    if (matrix.some((hourRow) => hourRow[i] !== null && hourRow[i] !== undefined)) {
-      todayIndex = i;
-      break;
+  // Prefer the column matching today's actual calendar date, even if it's only
+  // partially logged so far - a stray future entry (e.g. an overnight shift
+  // accidentally logged into tomorrow's column) shouldn't make the tracker
+  // skip past a mostly-complete "today" column to show that instead.
+  const todayKeyValue = dateKey(now);
+  let todayIndex = dates.findIndex((d) => dateKey(d) === todayKeyValue);
+
+  if (todayIndex === -1) {
+    // Today's column isn't in the sheet yet - fall back to the most recent
+    // column that has any logged hour at all.
+    for (let i = dates.length - 1; i >= 0; i -= 1) {
+      if (matrix.some((hourRow) => hourRow[i] !== null && hourRow[i] !== undefined)) {
+        todayIndex = i;
+        break;
+      }
     }
   }
 
