@@ -101,7 +101,8 @@ export const shiftHours = (shift: string) => {
   const end = parseTime(parts[1]);
   if (start === null || end === null) return 0;
   const duration = end > start ? end - start : end + 24 - start;
-  return Math.max(0, duration);
+  const unpaidBreakHours = duration > 5 ? 1 : 0;
+  return Math.max(0, duration - unpaidBreakHours);
 };
 
 const isMemberRow = (row: string[]) => {

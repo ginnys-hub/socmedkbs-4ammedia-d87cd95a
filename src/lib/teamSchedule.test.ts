@@ -39,7 +39,7 @@ describe("team schedule parsing", () => {
     ]);
     expect(schedule.members[0].group).toBe("OHA");
     expect(schedule.members[2].group).toBe("OTHER BRANDS");
-    expect(schedule.members[0].scheduledHours).toBe(45);
+    expect(schedule.members[0].scheduledHours).toBe(40);
     expect(schedule.members[1].scheduledDays).toBe(4);
     expect(schedule.coverageByDay[0]).toEqual([
       { label: "10PM - 7AM", count: 1 },
@@ -51,7 +51,7 @@ describe("team schedule parsing", () => {
   it("handles date and shift helpers used by the UI", () => {
     expect(dateKey(startOfWeek(new Date("2026-08-23T10:00:00Z")))).toBe("2026-08-17");
     expect(dateKey(parseScheduleDate("Aug 21, 2026")!)).toBe("2026-08-21");
-    expect(shiftHours("10PM - 7AM")).toBe(9);
+    expect(shiftHours("10PM - 7AM")).toBe(8);
     expect(isOffShift("LWOP")).toBe(true);
     expect(isOffShift("HOLIDAY OFF")).toBe(true);
   });
