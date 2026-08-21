@@ -10,14 +10,14 @@ import {
 } from "./teamSchedule";
 
 const sampleCsv = [
-  'Team Georgina,,"Aug 17, 2026","Aug 18, 2026","Aug 19, 2026","Aug 20, 2026","Aug 21, 2026","Aug 22, 2026","Aug 23, 2026"',
-  "CSR - OHA,Priority Skill,Mon,Tue,Wed,Thu,Fri,Sat,Sun",
-  "Alona Grace Jose,FB Chat+Comment Reply,5AM - 2PM,5AM - 2PM,5AM - 2PM,5AM - 2PM,5AM - 2PM,OFF,OFF",
-  "Ava Sue Reyes,FB Moderator and Chat+Comment Reply,1PM - 10PM,1PM - 10PM,LWOP,1PM - 10PM,1PM - 10PM,OFF,OFF",
-  "TOTAL CSRs ON DUTY,,2,2,1,2,2,0,0",
+  'Team Georgina,,"Aug 17, 2026","Aug 18, 2026","Aug 19, 2026","Aug 20, 2026","Aug 21, 2026","Aug 22, 2026","Aug 23, 2026","Aug 24, 2026","Aug 25, 2026","Aug 26, 2026","Aug 27, 2026","Aug 28, 2026","Aug 29, 2026","Aug 30, 2026"',
+  "CSR - OHA,Priority Skill,Mon,Tue,Wed,Thu,Fri,Sat,Sun,Mon,Tue,Wed,Thu,Fri,Sat,Sun",
+  "Alona Grace Jose,FB Chat+Comment Reply,5AM - 2PM,5AM - 2PM,5AM - 2PM,5AM - 2PM,5AM - 2PM,OFF,OFF,OFF,5AM - 2PM,5AM - 2PM,5AM - 2PM,5AM - 2PM,OFF,OFF",
+  "Ava Sue Reyes,FB Moderator and Chat+Comment Reply,1PM - 10PM,1PM - 10PM,LWOP,1PM - 10PM,1PM - 10PM,OFF,OFF,1PM - 10PM,1PM - 10PM,1PM - 10PM,OFF,1PM - 10PM,OFF,OFF",
+  "TOTAL CSRs ON DUTY,,2,2,1,2,2,0,0,1,2,2,1,2,0,0",
   "",
   "CSR - OTHER BRANDS,Priority Skill,Mon,Tue,Wed,Thu,Fri,Sat,Sun",
-  "Rande Delima,FB Moderator and Chat+Comment Reply,10PM - 7AM,10PM - 7AM,10PM - 7AM,10PM - 7AM,10PM - 7AM,OFF,OFF",
+  "Rande Delima,FB Moderator and Chat+Comment Reply,10PM - 7AM,10PM - 7AM,10PM - 7AM,10PM - 7AM,10PM - 7AM,OFF,OFF,OFF,10PM - 7AM,10PM - 7AM,10PM - 7AM,10PM - 7AM,OFF,OFF",
 ].join("\n");
 
 describe("team schedule parsing", () => {
@@ -42,11 +42,26 @@ describe("team schedule parsing", () => {
     expect(schedule.members[2].group).toBe("OTHER BRANDS");
     expect(schedule.members[0].scheduledHours).toBe(40);
     expect(schedule.members[1].scheduledDays).toBe(4);
+    expect(schedule.weekKey).toBe("2026-08-17");
+    expect(schedule.availableWeeks.map((week) => week.key)).toEqual(["2026-08-17", "2026-08-24"]);
     expect(schedule.coverageByDay[0]).toEqual([
       { label: "10PM - 7AM", count: 1 },
       { label: "1PM - 10PM", count: 1 },
       { label: "5AM - 2PM", count: 1 },
     ]);
+  });
+
+  it("can parse a selected week from the available schedule weeks", () => {
+    const schedule = parseTeamScheduleCsv(
+      sampleCsv,
+      new Date("2026-08-21T10:00:00Z"),
+      "2026-08-24"
+    );
+
+    expect(schedule.weekKey).toBe("2026-08-24");
+    expect(schedule.days[0].label).toBe("Aug 24");
+    expect(schedule.members[0].shifts[0]).toBe("OFF");
+    expect(schedule.members[0].scheduledHours).toBe(32);
   });
 
   it("handles date and shift helpers used by the UI", () => {

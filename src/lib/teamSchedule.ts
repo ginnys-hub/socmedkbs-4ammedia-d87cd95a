@@ -23,9 +23,18 @@ export type CoverageBucket = {
   count: number;
 };
 
+export type ScheduleWeek = {
+  key: string;
+  label: string;
+  startLabel: string;
+  endLabel: string;
+};
+
 export type TeamScheduleData = {
+  weekKey: string;
   weekStart: Date;
   weekEnd: Date;
+  availableWeeks: ScheduleWeek[];
   days: ScheduleDay[];
   members: TeamScheduleMember[];
   coverageByDay: CoverageBucket[][];
@@ -64,6 +73,13 @@ export const scheduleTodayKey = (date: Date = new Date()) => {
 export const startOfWeek = (date: Date) => {
   const { year, month, day: dateOfMonth } = scheduleDateParts(date);
   const utc = new Date(Date.UTC(year, month - 1, dateOfMonth));
+  const day = utc.getUTCDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  return new Date(utc.getTime() + mondayOffset * MS_PER_DAY);
+};
+
+const startOfWeekUtc = (date: Date) => {
+  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const day = utc.getUTCDay();
   const mondayOffset = day === 0 ? -6 : 1 - day;
   return new Date(utc.getTime() + mondayOffset * MS_PER_DAY);
@@ -130,9 +146,40 @@ const isMemberRow = (row: string[]) => {
   return true;
 };
 
+const parseDateKey = (key: string) => {
+  const [year, month, day] = key.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const formatWeekLabel = (weekStart: Date) => {
+  const weekEnd = addDays(weekStart, 6);
+  const startLabel = formatScheduleDate(weekStart);
+  const endLabel = formatScheduleDate(weekEnd);
+  return {
+    key: dateKey(weekStart),
+    label: `${startLabel} - ${endLabel}`,
+    startLabel,
+    endLabel,
+  };
+};
+
+const getAvailableWeeks = (datedColumns: { date: Date; index: number }[]) => {
+  const weekStarts = new Map<string, Date>();
+  datedColumns.forEach(({ date }) => {
+    const weekStart = startOfWeekUtc(date);
+    weekStarts.set(dateKey(weekStart), weekStart);
+  });
+  return Array.from(weekStarts.values())
+    .sort((a, b) => a.getTime() - b.getTime())
+    .map(formatWeekLabel);
+};
+
 export const parseTeamScheduleCsv = (
   csvText: string,
-  now: Date = new Date()
+  now: Date = new Date(),
+  selectedWeekKey?: string
 ): TeamScheduleData => {
   const rows = parseCsv(csvText);
   const dateRow = rows[0] ?? [];
@@ -140,14 +187,25 @@ export const parseTeamScheduleCsv = (
     .map((cell, index) => ({ date: parseScheduleDate(cell), index }))
     .filter((item): item is { date: Date; index: number } => item.date !== null);
 
-  const weekStart = startOfWeek(now);
+  const availableWeeks = getAvailableWeeks(datedColumns);
+  const selectedWeekStart = selectedWeekKey ? parseDateKey(selectedWeekKey) : null;
+  const weekStart = selectedWeekStart ?? startOfWeek(now);
   const weekEnd = addDays(weekStart, 6);
   let weekColumns = datedColumns.filter(
     ({ date }) => date.getTime() >= weekStart.getTime() && date.getTime() <= weekEnd.getTime()
   );
 
   if (weekColumns.length === 0) {
-    weekColumns = datedColumns.slice(-7);
+    const fallbackWeekStart = availableWeeks.length > 0
+      ? parseDateKey(availableWeeks[availableWeeks.length - 1].key)
+      : null;
+    weekColumns = fallbackWeekStart
+      ? datedColumns.filter(
+        ({ date }) =>
+          date.getTime() >= fallbackWeekStart.getTime() &&
+          date.getTime() <= addDays(fallbackWeekStart, 6).getTime()
+      )
+      : datedColumns.slice(-7);
   }
 
   const days = weekColumns.map(({ date }) => ({
@@ -196,8 +254,10 @@ export const parseTeamScheduleCsv = (
   });
 
   return {
+    weekKey: days[0] ? dateKey(startOfWeekUtc(days[0].date)) : dateKey(weekStart),
     weekStart: days[0]?.date ?? weekStart,
     weekEnd: days[days.length - 1]?.date ?? weekEnd,
+    availableWeeks,
     days,
     members,
     coverageByDay,
@@ -223,9 +283,11 @@ const FALLBACK_SCHEDULE_CSV = [
 const fallbackSchedule = () =>
   parseTeamScheduleCsv(FALLBACK_SCHEDULE_CSV, new Date("2026-08-21T00:00:00Z"));
 
-export const fetchTeamSchedule = async (): Promise<TeamScheduleData> => {
+export const fetchTeamSchedule = async (selectedWeekKey?: string): Promise<TeamScheduleData> => {
   if (!SCHEDULE_CSV_URL) {
-    return fallbackSchedule();
+    return selectedWeekKey
+      ? parseTeamScheduleCsv(FALLBACK_SCHEDULE_CSV, new Date(), selectedWeekKey)
+      : fallbackSchedule();
   }
 
   try {
@@ -240,8 +302,10 @@ export const fetchTeamSchedule = async (): Promise<TeamScheduleData> => {
       throw new Error("Schedule load returned an unexpected response.");
     }
 
-    return parseTeamScheduleCsv(csvText);
+    return parseTeamScheduleCsv(csvText, new Date(), selectedWeekKey);
   } catch {
-    return fallbackSchedule();
+    return selectedWeekKey
+      ? parseTeamScheduleCsv(FALLBACK_SCHEDULE_CSV, new Date(), selectedWeekKey)
+      : fallbackSchedule();
   }
 };

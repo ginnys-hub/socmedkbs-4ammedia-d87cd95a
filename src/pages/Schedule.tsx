@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   RefreshCw,
   Search,
@@ -27,7 +29,8 @@ const formatHours = (value: number) =>
   });
 
 const Schedule = () => {
-  const { data, isLoading, isError, error, dataUpdatedAt, isFetching } = useTeamSchedule();
+  const [selectedWeekKey, setSelectedWeekKey] = useState<string>();
+  const { data, isLoading, isError, error, dataUpdatedAt, isFetching } = useTeamSchedule(selectedWeekKey);
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("All");
 
@@ -51,6 +54,16 @@ const Schedule = () => {
     : [];
   const totalHours = data?.members.reduce((sum, member) => sum + member.scheduledHours, 0) ?? 0;
   const totalShiftCells = data?.members.reduce((sum, member) => sum + member.scheduledDays, 0) ?? 0;
+  const selectedWeekIndex = data?.availableWeeks.findIndex((week) => week.key === data.weekKey) ?? -1;
+  const selectedWeek = selectedWeekIndex >= 0 ? data?.availableWeeks[selectedWeekIndex] : undefined;
+  const canShowPreviousWeek = selectedWeekIndex > 0;
+  const canShowNextWeek = data ? selectedWeekIndex >= 0 && selectedWeekIndex < data.availableWeeks.length - 1 : false;
+
+  const moveWeek = (direction: -1 | 1) => {
+    if (!data || selectedWeekIndex < 0) return;
+    const nextWeek = data.availableWeeks[selectedWeekIndex + direction];
+    if (nextWeek) setSelectedWeekKey(nextWeek.key);
+  };
 
   return (
     <div className="space-y-8">
@@ -101,6 +114,51 @@ const Schedule = () => {
               {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "just now"}
             </span>
           </div>
+
+          <section className="rounded-3xl bg-card p-4 shadow-soft">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
+                  View week
+                </p>
+                <p className="text-lg font-extrabold">
+                  {selectedWeek?.label ?? `${data.days[0]?.label} - ${data.days[data.days.length - 1]?.label}`}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => moveWeek(-1)}
+                  disabled={!canShowPreviousWeek}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-muted/70 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Previous week"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <select
+                  value={data.weekKey}
+                  onChange={(event) => setSelectedWeekKey(event.target.value)}
+                  className="h-10 min-w-52 rounded-full border border-border bg-background px-4 text-sm font-bold text-foreground shadow-soft outline-none transition-colors focus:border-primary"
+                  aria-label="Select schedule week"
+                >
+                  {[...data.availableWeeks].reverse().map((week) => (
+                    <option key={week.key} value={week.key}>
+                      {week.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => moveWeek(1)}
+                  disabled={!canShowNextWeek}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-muted/70 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Next week"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </section>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard icon={Users} label="Team members" value={String(data.members.length)} tone="primary" />
