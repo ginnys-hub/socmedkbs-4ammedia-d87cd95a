@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import Index from "./pages/Index.tsx";
 import Scorecards from "./pages/Scorecards.tsx";
 import HourlyTracker from "./pages/HourlyTracker.tsx";
+import Schedule from "./pages/Schedule.tsx";
 import Macros from "./pages/Macros.tsx";
 import ZendeskMacros from "./pages/ZendeskMacros.tsx";
 import Resources from "./pages/Resources.tsx";
@@ -39,6 +40,7 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
               <Route path="/scorecards" element={<Scorecards />} />
+              <Route path="/schedule" element={<Schedule />} />
               <Route path="/hourly-tracker" element={<HourlyTracker />} />
               <Route path="/macros" element={<Macros />} />
               <Route path="/zendesk-macros" element={<ZendeskMacros />} />

@@ -3,6 +3,7 @@ import {
   Sparkles,
   Megaphone,
   BarChart3,
+  CalendarDays,
   Gauge,
   MessageSquareText,
   FileText,
@@ -24,6 +25,7 @@ import { cn } from "@/lib/utils";
 const directLinks = [
   { to: "/", label: "Home", icon: Megaphone, end: true },
   { to: "/scorecards", label: "Scorecards", icon: BarChart3 },
+  { to: "/schedule", label: "Schedule", icon: CalendarDays },
   { to: "/hourly-tracker", label: "Hourly Tracker", icon: Gauge },
 ];
 
