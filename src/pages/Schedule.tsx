@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   CalendarDays,
   Clock,
-  ExternalLink,
   RefreshCw,
   Search,
   Sparkles,
@@ -13,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTeamSchedule } from "@/hooks/useTeamSchedule";
 import {
-  SCHEDULE_SOURCE_SHEET_URL,
   dateKey,
   isOffShift,
   type TeamScheduleMember,
@@ -79,15 +77,6 @@ const Schedule = () => {
             </p>
           </div>
 
-          <a
-            href={SCHEDULE_SOURCE_SHEET_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-sky-foreground shadow-soft transition-transform hover:scale-105"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Source sheet
-          </a>
         </div>
       </section>
 
