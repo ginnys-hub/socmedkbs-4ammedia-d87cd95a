@@ -266,18 +266,18 @@ export const parseTeamScheduleCsv = (
 };
 
 const FALLBACK_SCHEDULE_CSV = [
-  '"Team Georgina",,"Aug 17, 2026","Aug 18, 2026","Aug 19, 2026","Aug 20, 2026","Aug 21, 2026","Aug 22, 2026","Aug 23, 2026"',
-  '"CSR - OHA","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
-  '"Alona Grace Jose","FB Chat+Comment Reply","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF"',
-  '"Ava Sue Reyes","FB Moderator and Chat+Comment Reply","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM"',
-  '"Jezzalyn Tarranza","FB Moderator","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","5AM - 2PM"',
-  '"Jayson Aparece","FB Moderator and Chat+Comment Reply","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM"',
-  '"TOTAL CSRs ON DUTY",,"3","4","3","3","4","3","3"',
+  '"Team Georgina",,"Aug 17, 2026","Aug 18, 2026","Aug 19, 2026","Aug 20, 2026","Aug 21, 2026","Aug 22, 2026","Aug 23, 2026","Aug 24, 2026","Aug 25, 2026","Aug 26, 2026","Aug 27, 2026","Aug 28, 2026","Aug 29, 2026","Aug 30, 2026"',
+  '"CSR - OHA","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
+  '"Alona Grace Jose","FB Chat+Comment Reply","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","OFF"',
+  '"Ava Sue Reyes","FB Moderator and Chat+Comment Reply","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF"',
+  '"Jezzalyn Tarranza","FB Moderator","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","OFF","5AM - 2PM","5AM - 2PM"',
+  '"Jayson Aparece","FB Moderator and Chat+Comment Reply","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM"',
+  '"TOTAL CSRs ON DUTY",,"3","4","3","3","4","3","3","3","4","3","3","3","3","3"',
   "",
-  '"CSR - OTHER BRANDS","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
-  '"Jessel Lebosada","FB Moderator","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","OFF"',
-  '"Rande Delima","FB Moderator and Chat+Comment Reply","2AM - 11AM","2AM - 11AM","OFF","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM"',
-  '"TOTAL CSRs ON DUTY",,"5","6","3","5","2","2","1"',
+  '"CSR - OTHER BRANDS","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
+  '"Jessel Lebosada","FB Moderator","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","OFF","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","1PM-10PM","OFF","OFF"',
+  '"Rande Delima","FB Moderator and Chat+Comment Reply","2AM - 11AM","2AM - 11AM","OFF","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM","OFF","OFF","2AM - 11AM","2AM - 11AM","2AM - 11AM"',
+  '"TOTAL CSRs ON DUTY",,"5","6","3","5","2","2","1","5","6","4","4","5","3","2"',
 ].join("\n");
 
 const fallbackSchedule = () =>
