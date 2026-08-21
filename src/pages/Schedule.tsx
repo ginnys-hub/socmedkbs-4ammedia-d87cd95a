@@ -64,7 +64,7 @@ const Schedule = () => {
               <div>
                 <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-sky-foreground/75">
                   <Sparkles className="h-3.5 w-3.5" />
-                  {data?.source === "snapshot" ? "Sheet-backed snapshot" : "Live from Google Sheets"}
+                  Team schedule
                 </p>
                 <h1 className="text-3xl font-extrabold text-sky-foreground sm:text-4xl">
                   Social Media Team Schedule
@@ -72,8 +72,7 @@ const Schedule = () => {
               </div>
             </div>
             <p className="mt-4 text-sm font-medium leading-6 text-sky-foreground/80">
-              A cleaner weekly roster built from the team schedule sheet, with coverage,
-              shift status, and quick scanning for daily staffing.
+              A cleaner weekly roster with coverage, shift status, and quick scanning for daily staffing.
             </p>
           </div>
 
@@ -88,28 +87,13 @@ const Schedule = () => {
         <>
           {isError && <ScheduleError error={error} compact />}
 
-          {data.source === "snapshot" && (
-            <div className="rounded-3xl bg-sunny/45 p-4 text-sunny-foreground shadow-soft">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-                <div>
-                  <p className="font-extrabold">Showing the latest saved schedule snapshot</p>
-                  <p className="mt-1 text-sm leading-6 opacity-85">
-                    The Google Sheet is private to the public website. Publish a schedule CSV mirror
-                    and set VITE_SCHEDULE_CSV_URL in Cloudflare to make this page refresh every week automatically.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5 font-semibold text-mint-foreground">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-mint" />
               </span>
-              {data.source === "live" ? "Live weekly view" : "Snapshot weekly view"}
+              Weekly view
             </span>
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
             <span>
@@ -251,11 +235,10 @@ const ScheduleError = ({ error, compact = false }: { error: unknown; compact?: b
     <div className="flex items-start gap-3">
       <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
       <div>
-        <p className="font-extrabold">Schedule source needs a public mirror</p>
+        <p className="font-extrabold">Schedule is temporarily unavailable</p>
         {!compact && (
           <p className="mt-1 text-sm leading-6 opacity-85">
-            The linked Google Sheet is private, so the public site cannot fetch it directly.
-            Create a public mirror/published tab and set `VITE_SCHEDULE_CSV_URL` to its CSV endpoint.
+            The schedule could not be loaded right now. Please try again soon.
             {error instanceof Error ? ` Current load detail: ${error.message}` : ""}
           </p>
         )}
