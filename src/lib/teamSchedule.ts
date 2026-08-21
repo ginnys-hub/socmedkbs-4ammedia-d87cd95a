@@ -1,13 +1,6 @@
 import { parseCsv } from "@/lib/hourlyTicketLog";
 
-export const SCHEDULE_SOURCE_SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1SVyktzY1g-OhuzmEwoyAueqNoqrcwMswrtJxPy5q_18/edit?gid=1893211963#gid=1893211963";
-export const SCHEDULE_SHEET_ID = "1SVyktzY1g-OhuzmEwoyAueqNoqrcwMswrtJxPy5q_18";
-export const SCHEDULE_SHEET_GID = "1893211963";
-export const SCHEDULE_TAB_NAME = "Social Media Schedule";
-export const SCHEDULE_CSV_URL =
-  import.meta.env.VITE_SCHEDULE_CSV_URL ??
-  `https://docs.google.com/spreadsheets/d/${SCHEDULE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SCHEDULE_SHEET_GID}&range=A1:ZZ40`;
+export const SCHEDULE_CSV_URL = import.meta.env.VITE_SCHEDULE_CSV_URL ?? "";
 
 export type ScheduleDay = {
   date: Date;
@@ -37,7 +30,6 @@ export type TeamScheduleData = {
   members: TeamScheduleMember[];
   coverageByDay: CoverageBucket[][];
   generatedAt: Date;
-  source: "live" | "snapshot";
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -117,8 +109,7 @@ const isMemberRow = (row: string[]) => {
 
 export const parseTeamScheduleCsv = (
   csvText: string,
-  now: Date = new Date(),
-  source: TeamScheduleData["source"] = "live"
+  now: Date = new Date()
 ): TeamScheduleData => {
   const rows = parseCsv(csvText);
   const dateRow = rows[0] ?? [];
@@ -188,7 +179,6 @@ export const parseTeamScheduleCsv = (
     members,
     coverageByDay,
     generatedAt: new Date(),
-    source,
   };
 };
 
@@ -208,18 +198,23 @@ const FALLBACK_SCHEDULE_CSV = [
 ].join("\n");
 
 const fallbackSchedule = () =>
-  parseTeamScheduleCsv(FALLBACK_SCHEDULE_CSV, new Date("2026-08-21T00:00:00Z"), "snapshot");
+  parseTeamScheduleCsv(FALLBACK_SCHEDULE_CSV, new Date("2026-08-21T00:00:00Z"));
 
 export const fetchTeamSchedule = async (): Promise<TeamScheduleData> => {
+  if (!SCHEDULE_CSV_URL) {
+    return fallbackSchedule();
+  }
+
   try {
-    const response = await fetch(`${SCHEDULE_CSV_URL}&cachebust=${Date.now()}`);
+    const separator = SCHEDULE_CSV_URL.includes("?") ? "&" : "?";
+    const response = await fetch(`${SCHEDULE_CSV_URL}${separator}cachebust=${Date.now()}`);
     if (!response.ok) {
       throw new Error(`Failed to load team schedule (HTTP ${response.status})`);
     }
 
     const csvText = await response.text();
     if (/<!doctype html|<html|ServiceLogin/i.test(csvText)) {
-      throw new Error("The schedule sheet is not publicly readable by the website yet.");
+      throw new Error("Schedule load returned an unexpected response.");
     }
 
     return parseTeamScheduleCsv(csvText);
