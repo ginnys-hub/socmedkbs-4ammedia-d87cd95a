@@ -12,13 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTeamSchedule } from "@/hooks/useTeamSchedule";
 import {
-  dateKey,
   isOffShift,
+  scheduleTodayKey,
   type TeamScheduleMember,
 } from "@/lib/teamSchedule";
 import { cn } from "@/lib/utils";
 
-const todayKey = dateKey(new Date());
+const todayKey = scheduleTodayKey();
 
 const formatHours = (value: number) =>
   Number(value).toLocaleString("en", {
@@ -212,7 +212,7 @@ const Schedule = () => {
                           key={`${member.name}-${data.days[index]?.key}`}
                           className={cn("p-3 align-top", data.days[index]?.key === todayKey && "bg-primary/5")}
                         >
-                          <ShiftBadge shift={shift} />
+                          <ShiftBadge shift={shift} isToday={data.days[index]?.key === todayKey} />
                         </td>
                       ))}
                       <td className="p-3 text-right align-top font-extrabold">
@@ -283,12 +283,12 @@ const MemberTodayCard = ({ member, shift }: { member: TeamScheduleMember; shift:
         <p className="font-extrabold">{member.name}</p>
         <p className="text-xs font-semibold text-muted-foreground">{member.skill}</p>
       </div>
-      <ShiftBadge shift={shift} />
+      <ShiftBadge shift={shift} isToday />
     </div>
   </div>
 );
 
-const ShiftBadge = ({ shift }: { shift: string }) => {
+const ShiftBadge = ({ shift, isToday = false }: { shift: string; isToday?: boolean }) => {
   const off = isOffShift(shift);
   return (
     <span
@@ -296,6 +296,8 @@ const ShiftBadge = ({ shift }: { shift: string }) => {
         "inline-flex min-w-24 justify-center rounded-full px-3 py-1 text-xs font-extrabold",
         off
           ? "bg-muted text-muted-foreground"
+          : isToday
+            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
           : "bg-primary/12 text-primary ring-1 ring-primary/20"
       )}
     >

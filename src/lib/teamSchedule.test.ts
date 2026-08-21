@@ -4,6 +4,7 @@ import {
   isOffShift,
   parseScheduleDate,
   parseTeamScheduleCsv,
+  scheduleTodayKey,
   shiftHours,
   startOfWeek,
 } from "./teamSchedule";
@@ -50,6 +51,8 @@ describe("team schedule parsing", () => {
 
   it("handles date and shift helpers used by the UI", () => {
     expect(dateKey(startOfWeek(new Date("2026-08-23T10:00:00Z")))).toBe("2026-08-17");
+    expect(dateKey(startOfWeek(new Date("2026-08-24T06:30:00Z")))).toBe("2026-08-17");
+    expect(scheduleTodayKey(new Date("2026-08-24T06:30:00Z"))).toBe("2026-08-23");
     expect(dateKey(parseScheduleDate("Aug 21, 2026")!)).toBe("2026-08-21");
     expect(shiftHours("10PM - 7AM")).toBe(8);
     expect(isOffShift("LWOP")).toBe(true);

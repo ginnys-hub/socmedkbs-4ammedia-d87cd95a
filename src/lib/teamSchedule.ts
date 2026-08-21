@@ -33,14 +33,37 @@ export type TeamScheduleData = {
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const SCHEDULE_TIME_ZONE = "America/Los_Angeles";
 const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const scheduleDateParts = (date: Date) => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: SCHEDULE_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return {
+    year: Number(values.year),
+    month: Number(values.month),
+    day: Number(values.day),
+  };
+};
 
 export const dateKey = (date: Date) =>
   `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 
+export const scheduleTodayKey = (date: Date = new Date()) => {
+  const { year, month, day } = scheduleDateParts(date);
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+};
+
 export const startOfWeek = (date: Date) => {
-  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const { year, month, day: dateOfMonth } = scheduleDateParts(date);
+  const utc = new Date(Date.UTC(year, month - 1, dateOfMonth));
   const day = utc.getUTCDay();
   const mondayOffset = day === 0 ? -6 : 1 - day;
   return new Date(utc.getTime() + mondayOffset * MS_PER_DAY);
