@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart3, CalendarDays, TrendingUp, Trophy, UserRound } from "lucide-react";
+import { BarChart3, CalendarDays, Download, TrendingUp, Trophy, UserRound } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -396,6 +396,17 @@ const WeeklyScorecards = ({
             ))}
           </SelectContent>
         </Select>
+        {week?.pdf_url ? (
+          <a
+            href={week.pdf_url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-soft transition-transform hover:-translate-y-0.5"
+          >
+            <Download className="h-4 w-4" />
+            Open PDF
+          </a>
+        ) : null}
       </div>
 
       <TopThree entries={sortedTop} />
