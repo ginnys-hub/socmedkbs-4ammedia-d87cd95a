@@ -63,7 +63,8 @@ export const resources: Resource[] = [
     title: "Oricle 3.0 - V1 Handbook",
     brand: "Oricle",
     category: "Guides" as ResourceCategory,
-    description: "Product handbook for Oricle 3.0 V1. Use this when checking setup, controls, charging, fit, and troubleshooting guidance.",
+    description:
+      "Cascade overview: temporary JH testing model for Oricle 3.0, not the long-term replacement. Compared with Oricle 2.0, this uses factory model JH-A170 with the same analog CIC setup, 6 volume levels, 2 modes, automatic turn-on, 5-second start-up delay, and sticker removal requirement. Phase-in starts Aug. 26 with 6K inventory for one-time market testing.",
     href: "/resources/oricle-manuals/oricle-3-0-v1-handbook.pdf",
     thumbnail: oricle30v1.url,
   },
@@ -72,7 +73,8 @@ export const resources: Resource[] = [
     title: "Oricle 3.0 - V2 Manual",
     brand: "Oricle",
     category: "Guides" as ResourceCategory,
-    description: "Product manual for Oricle 3.0 V2. Use this for the updated model's customer setup and care reference.",
+    description:
+      "Cascade overview: new replacement for Oricle 2.0. It keeps the same Oricle 2.0 look and analog CIC flow, but moves to the improved JH-A490 model with better quality and noise canceling. New internal SKU is MA-OEHOAOTEA490NEW26, with 10,020 units on order and phase-in starting Aug. 26.",
     href: "/resources/oricle-manuals/oricle-3-0-v2-manual.pdf",
     thumbnail: oricle30v2.url,
   },
@@ -81,7 +83,8 @@ export const resources: Resource[] = [
     title: "Oricle PRO+ V1 Handbook",
     brand: "Oricle",
     category: "Guides" as ResourceCategory,
-    description: "Product handbook for Oricle PRO+ V1. Use this when supporting customers with product operation and troubleshooting.",
+    description:
+      "Cascade overview: temporary JH testing model for the Pro line. Compared with Oricle Pro, PRO+ V1 changes to factory model JH-A26A, Intricon chipset, 4 channels, automatic turn-on, and sticker removal required. It keeps CIC style, 6 volume levels, 4 modes, and a 5-second start-up delay. Phase-in starts Aug. 26 with 2,040 units on order.",
     href: "/resources/oricle-manuals/oricle-pro-plus-v1-handbook.pdf",
     thumbnail: oricleProPlusV1.url,
   },
@@ -90,7 +93,8 @@ export const resources: Resource[] = [
     title: "Oricle PRO+ V2 Handbook",
     brand: "Oricle",
     category: "Guides" as ResourceCategory,
-    description: "Product handbook for Oricle PRO+ V2. Use this for the newer PRO+ reference, care, charging, and setup guidance.",
+    description:
+      "Cascade overview: new replacement for the current Oricle Pro. This version moves to supplier Wenatone, factory model EC04-01, Onsemi BS300 chipset, smaller hearing size, 16 channels, 9 volume levels, automatic turn-on, 8-second start-up delay, sticker removal required, and screen display. Phase-in starts Aug. 26 with 3,000 units on order.",
     href: "/resources/oricle-manuals/oricle-pro-plus-v2-handbook.pdf",
     thumbnail: oricleProPlusV2.url,
   },
