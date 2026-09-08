@@ -40,6 +40,10 @@ type MonthlyEntry = ScorecardEntry & {
   weeks_count: number;
 };
 
+const MONTHLY_REPORTS: Record<string, string> = {
+  "2026-08": "/scorecards/social-media-team-monthly-report-august-2026.pdf",
+};
+
 const monthIdFromDate = (date: string) => date.slice(0, 7);
 
 const monthLabelFromId = (monthId: string) => {
@@ -475,23 +479,39 @@ const MonthlyOverallView = ({
   monthlyChartData: Array<{ name: string; overall: number }>;
   setMonthId: (monthId: string) => void;
   sortedMonthlyTop: MonthlyEntry[];
-}) => (
-  <>
-    <MonthSelect monthId={monthId} months={months} setMonthId={setMonthId} />
+}) => {
+  const reportUrl = MONTHLY_REPORTS[monthId];
 
-    {sortedMonthlyTop.length === 0 ? (
-      <p className="rounded-3xl bg-muted p-6 text-center text-muted-foreground">
-        No monthly scorecard data for this month.
-      </p>
-    ) : (
-      <>
-        <TopThree entries={sortedMonthlyTop} />
-        <OverallBarChart data={monthlyChartData} title={`Monthly Overall % — ${month?.label ?? ""}`} />
-        <ScorecardTable entries={sortedMonthlyTop} showWeeks />
-      </>
-    )}
-  </>
-);
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-3">
+        <MonthSelect monthId={monthId} months={months} setMonthId={setMonthId} />
+        {reportUrl ? (
+          <a
+            href={reportUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-soft transition-transform hover:-translate-y-0.5"
+          >
+            <Download className="h-4 w-4" />
+            Open Monthly Report
+          </a>
+        ) : null}
+      </div>
+      {sortedMonthlyTop.length === 0 ? (
+        <p className="rounded-3xl bg-muted p-6 text-center text-muted-foreground">
+          No monthly scorecard data for this month.
+        </p>
+      ) : (
+        <>
+          <TopThree entries={sortedMonthlyTop} />
+          <OverallBarChart data={monthlyChartData} title={`Monthly Overall % — ${month?.label ?? ""}`} />
+          <ScorecardTable entries={sortedMonthlyTop} showWeeks />
+        </>
+      )}
+    </>
+  );
+};
 
 const MonthlyIndividualView = ({
   memberThisMonth,
