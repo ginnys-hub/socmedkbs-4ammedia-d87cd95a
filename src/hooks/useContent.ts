@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { LOCAL_SCORECARD_ENTRIES, LOCAL_SCORECARD_WEEKS } from "@/data/localScorecards";
+import { ANNOUNCEMENTS as LOCAL_ANNOUNCEMENTS } from "@/data/announcements";
 
 /** Subscribe to realtime announcement changes and refresh the cache. */
 export const useAnnouncementsRealtime = () => {
@@ -71,6 +72,15 @@ const sortWeeks = (weeks: ScorecardWeek[]) =>
 const sortEntries = (entries: ScorecardEntry[]) =>
   [...entries].sort((a, b) => Number(b.overall_pct) - Number(a.overall_pct));
 
+const sortAnnouncements = (announcements: Announcement[]) =>
+  [...announcements].sort((a, b) => b.posted_on.localeCompare(a.posted_on));
+
+const mergeAnnouncements = (remoteAnnouncements: Announcement[] = []) => {
+  const localIds = new Set(LOCAL_ANNOUNCEMENTS.map((announcement) => announcement.id));
+  const remoteOnly = remoteAnnouncements.filter((announcement) => !localIds.has(announcement.id));
+  return sortAnnouncements([...LOCAL_ANNOUNCEMENTS, ...remoteOnly]);
+};
+
 const mergeScorecardWeeks = (remoteWeeks: ScorecardWeek[] = []) => {
   const localWeekDates = new Set(LOCAL_SCORECARD_WEEKS.map((week) => week.week_of));
   const localHasCurrent = LOCAL_SCORECARD_WEEKS.some((week) => week.is_current);
@@ -102,12 +112,17 @@ export const useAnnouncements = () =>
   useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("announcements")
-        .select("*")
-        .order("posted_on", { ascending: false });
-      if (error) throw error;
-      return data as Announcement[];
+      try {
+        const { data, error } = await supabase
+          .from("announcements")
+          .select("*")
+          .order("posted_on", { ascending: false });
+        if (error) throw error;
+        return mergeAnnouncements(data as Announcement[]);
+      } catch (error) {
+        if (LOCAL_ANNOUNCEMENTS.length > 0) return mergeAnnouncements();
+        throw error;
+      }
     },
   });
 
