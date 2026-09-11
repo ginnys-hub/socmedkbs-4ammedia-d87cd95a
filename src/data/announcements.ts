@@ -8,6 +8,15 @@ export type Announcement = {
 
 export const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-09-11-subscription-pause-cadence-discount-requests",
+    posted_on: "2026-09-11",
+    title: "Subscription Pause, Cadence, and Discount Requests",
+    category: "update",
+    body: `Please use this sheet for Subscription Pause, Cadence, and Discount Requests:
+
+https://docs.google.com/spreadsheets/d/1tDZFumY23hgRFulQB4R5UXPhlj-TGMrkWHIjSmRr2xo/edit?gid=0#gid=0`,
+  },
+  {
     id: "2026-09-11-escalated-comments-channel",
     posted_on: "2026-09-11",
     title: "Escalated Comments Channel Update",
