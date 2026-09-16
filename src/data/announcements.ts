@@ -8,6 +8,17 @@ export type Announcement = {
 
 export const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-09-16-oricle-links-moving-forward",
+    posted_on: "2026-09-16",
+    title: "Oricle Links to Use Moving Forward",
+    category: "update",
+    body: `Moving forward, please use the correct Oricle offer links below when sharing or routing customers:
+
+Oricle 2.0: https://try.oriclehearing.com/getoriclenow
+Oricle BTE: https://try.oriclehearing.com/truefit
+Oricle PRO: https://try.oriclehearing.com/oriclepro`,
+  },
+  {
     id: "2026-09-11-subscription-pause-cadence-discount-requests",
     posted_on: "2026-09-11",
     title: "Subscription Pause, Cadence, and Discount Requests",
