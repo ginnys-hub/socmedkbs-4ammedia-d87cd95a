@@ -20,8 +20,6 @@ import {
 } from "@/lib/teamSchedule";
 import { cn } from "@/lib/utils";
 
-const todayKey = scheduleTodayKey();
-
 const formatHours = (value: number) =>
   Number(value).toLocaleString("en", {
     minimumFractionDigits: value % 1 === 0 ? 0 : 1,
@@ -29,6 +27,7 @@ const formatHours = (value: number) =>
   });
 
 const Schedule = () => {
+  const todayKey = scheduleTodayKey();
   const [selectedWeekKey, setSelectedWeekKey] = useState<string>();
   const { data, isLoading, isError, error, dataUpdatedAt, isFetching } = useTeamSchedule(selectedWeekKey);
   const [query, setQuery] = useState("");
@@ -110,8 +109,8 @@ const Schedule = () => {
             </span>
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
             <span>
-              {data.days[0]?.label} - {data.days[data.days.length - 1]?.label} · refreshed{" "}
-              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "just now"}
+              {data.days[0]?.label} - {data.days[data.days.length - 1]?.label}
+              {dataUpdatedAt > 0 && !isError ? ` · refreshed ${new Date(dataUpdatedAt).toLocaleTimeString()}` : ""}
             </span>
           </div>
 
@@ -293,7 +292,7 @@ const ScheduleError = ({ error, compact = false }: { error: unknown; compact?: b
     <div className="flex items-start gap-3">
       <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
       <div>
-        <p className="font-extrabold">Schedule is temporarily unavailable</p>
+        <p className="font-extrabold">{compact ? "Schedule refresh is temporarily unavailable. These shifts may be out of date." : "Schedule is temporarily unavailable"}</p>
         {!compact && (
           <p className="mt-1 text-sm leading-6 opacity-85">
             The schedule could not be loaded right now. Please try again soon.

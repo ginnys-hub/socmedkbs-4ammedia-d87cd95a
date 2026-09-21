@@ -1,6 +1,6 @@
 import { parseCsv } from "@/lib/hourlyTicketLog";
 
-export const SCHEDULE_CSV_URL = import.meta.env.VITE_SCHEDULE_CSV_URL ?? "";
+export const SCHEDULE_CSV_URL = "/api/team-schedule";
 
 export type ScheduleDay = {
   date: Date;
@@ -183,11 +183,17 @@ export const parseTeamScheduleCsv = (
 ): TeamScheduleData => {
   const rows = parseCsv(csvText);
   const dateRow = rows[0] ?? [];
-  const datedColumns = dateRow
+  const allDatedColumns = dateRow
     .map((cell, index) => ({ date: parseScheduleDate(cell), index }))
     .filter((item): item is { date: Date; index: number } => item.date !== null);
 
+  // Copied week headers must never count the same day twice.
+  const datedColumns = Array.from(new Map(
+    allDatedColumns.map((column) => [dateKey(column.date), column])
+  ).values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+
   const availableWeeks = getAvailableWeeks(datedColumns);
+  if (!availableWeeks.length) throw new Error("Schedule contains no valid dates.");
   const selectedWeekStart = selectedWeekKey ? parseDateKey(selectedWeekKey) : null;
   const weekStart = selectedWeekStart ?? startOfWeek(now);
   const weekEnd = addDays(weekStart, 6);
@@ -289,7 +295,7 @@ const latestWeekKeyFromScheduleCsv = (csvText: string) => {
   return getAvailableWeeks(datedColumns).at(-1)?.key;
 };
 
-const fallbackSchedule = (selectedWeekKey?: string) =>
+export const fallbackSchedule = (selectedWeekKey?: string) =>
   parseTeamScheduleCsv(
     FALLBACK_SCHEDULE_CSV,
     new Date(),
@@ -297,13 +303,13 @@ const fallbackSchedule = (selectedWeekKey?: string) =>
   );
 
 export const fetchTeamSchedule = async (selectedWeekKey?: string): Promise<TeamScheduleData> => {
-  if (!SCHEDULE_CSV_URL) {
-    return fallbackSchedule(selectedWeekKey);
-  }
-
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 45000);
   try {
-    const separator = SCHEDULE_CSV_URL.includes("?") ? "&" : "?";
-    const response = await fetch(`${SCHEDULE_CSV_URL}${separator}cachebust=${Date.now()}`);
+    const response = await fetch(`${SCHEDULE_CSV_URL}?cachebust=${Date.now()}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
     if (!response.ok) {
       throw new Error(`Failed to load team schedule (HTTP ${response.status})`);
     }
@@ -313,8 +319,10 @@ export const fetchTeamSchedule = async (selectedWeekKey?: string): Promise<TeamS
       throw new Error("Schedule load returned an unexpected response.");
     }
 
-    return parseTeamScheduleCsv(csvText, new Date(), selectedWeekKey);
-  } catch {
-    return fallbackSchedule(selectedWeekKey);
+    const schedule = parseTeamScheduleCsv(csvText, new Date(), selectedWeekKey);
+    if (!schedule.members.length) throw new Error("Schedule contains no team members.");
+    return schedule;
+  } finally {
+    clearTimeout(timeout);
   }
 };
