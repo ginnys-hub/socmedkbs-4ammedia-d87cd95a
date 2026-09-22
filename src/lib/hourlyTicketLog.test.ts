@@ -1,14 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   computeForecast,
   computeHourlyStats,
   computeWeekdayHourHeatmap,
   dateKey,
+  fetchTicketLog,
   parseCsv,
   parseDateCell,
   parseTicketLogCsv,
   pearsonCorrelation,
 } from "./hourlyTicketLog";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 // Real column snapshots pulled from the "FB Open Tickets Log" tab (Aug 8-12, 2026),
 // with hour 3/4/22/23 left blank on some days the way the sheet actually does.
@@ -62,6 +67,25 @@ describe("parseCsv", () => {
     const rows = parseCsv('a,"b, c","d ""quoted"""\n1,2,3\n');
     expect(rows[0]).toEqual(["a", "b, c", 'd "quoted"']);
     expect(rows[1]).toEqual(["1", "2", "3"]);
+  });
+});
+
+describe("fetchTicketLog", () => {
+  it("uses the site feed so browser and intermediary caches cannot mask source updates", async () => {
+    const csv = buildCsv(["8/11/2026", "8/12/2026"], HOUR_LABELS);
+    const fetchMock = vi.fn().mockResolvedValue(new Response(csv));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const data = await fetchTicketLog();
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/hourly-ticket-log", { cache: "no-store" });
+    expect(data.dates).toHaveLength(2);
+  });
+
+  it("rejects an HTML login page instead of presenting it as a live tracker", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("<!doctype html><html></html>")));
+
+    await expect(fetchTicketLog()).rejects.toThrow("did not return CSV data");
   });
 });
 

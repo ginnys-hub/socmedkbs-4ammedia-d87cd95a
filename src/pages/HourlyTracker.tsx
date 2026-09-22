@@ -37,7 +37,7 @@ const heatmapFill = (t: number) => `hsl(260 70% ${Math.round(92 - t * 60)}%)`;
 const heatmapTextClass = (t: number) => (t > 0.55 ? "text-white" : "text-foreground");
 
 const HourlyTracker = () => {
-  const { data, isLoading, isError, error, dataUpdatedAt, isFetching } = useHourlyTicketLog();
+  const { data, isLoading, isError, error, dataUpdatedAt, isFetching, refetch } = useHourlyTicketLog();
 
   const stats = useMemo(() => (data ? computeHourlyStats(data) : null), [data]);
   const forecast = useMemo(() => (stats ? computeForecast(stats) : null), [stats]);
@@ -83,6 +83,10 @@ const HourlyTracker = () => {
     return { todayPeak, typicalPeak };
   }, [stats]);
 
+  const hasCurrentReading = Boolean(
+    stats && stats.latestHour !== null && stats.latestCount !== null
+  );
+
   return (
     <div className="space-y-8">
       <div className="rounded-3xl bg-gradient-bubblegum p-6 sm:p-8 shadow-pop animate-scale-in">
@@ -117,9 +121,9 @@ const HourlyTracker = () => {
       ) : !stats || !forecast || !heatmap || !stats.todayDate ? (
         <div className="rounded-3xl bg-muted p-8 text-center text-muted-foreground">
           <AlertTriangle className="mx-auto mb-2 h-6 w-6" />
-          Couldn't load the live tracker
+          Couldn't load the ticket tracker
           {error instanceof Error ? `: ${error.message}` : "."} Make sure the mirror sheet is
-          shared as "Anyone with the link can view". Retrying automatically every minute.
+          shared as "Anyone with the link can view". Retrying automatically every 30 seconds.
         </div>
       ) : (
         <>
@@ -133,19 +137,37 @@ const HourlyTracker = () => {
             </div>
           )}
 
+          {!isError && !hasCurrentReading && (
+            <div className="flex items-center gap-2 rounded-2xl bg-sunny/40 px-4 py-2 text-sm text-sunny-foreground">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              No ticket counts have been logged for {formatDateLabel(stats.todayDate)} yet. The feed is
+              connected and will check again in 30 seconds.
+            </div>
+          )}
+
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5 font-semibold text-mint-foreground">
+            <span
+              className={`flex items-center gap-1.5 font-semibold ${hasCurrentReading ? "text-mint-foreground" : "text-sunny-foreground"}`}
+            >
               <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-mint" />
+                {hasCurrentReading && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />}
+                <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${hasCurrentReading ? "bg-mint" : "bg-sunny"}`} />
               </span>
-              Live
+              {hasCurrentReading ? "Live feed" : "Waiting for entries"}
             </span>
-            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              aria-label="Refresh hourly ticket tracker"
+              title="Refresh now"
+              className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-wait disabled:opacity-60"
+            >
+              <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            </button>
             <span>
-              Showing {formatDateLabel(stats.todayDate)} · last refreshed{" "}
-              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "—"} · auto-updates every
-              minute
+              Showing {formatDateLabel(stats.todayDate)} · last feed check{" "}
+              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "—"} · checks every 30 seconds
             </span>
           </div>
 

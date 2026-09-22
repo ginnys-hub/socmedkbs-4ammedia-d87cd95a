@@ -17,6 +17,7 @@ export const MIRROR_SHEET_ID = "1BbofIj4dSH71dxM88GoYrQ3kf83CmlpWVRWJ2wb6xPQ";
 // gviz endpoint silently fails to find matching data.
 export const MIRROR_SHEET_GID = "556196617";
 export const MIRROR_CSV_URL = `https://docs.google.com/spreadsheets/d/${MIRROR_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${MIRROR_SHEET_GID}`;
+export const HOURLY_TICKET_LOG_API = "/api/hourly-ticket-log";
 export const SOURCE_SHEET_URL =
   "https://docs.google.com/spreadsheets/d/1jf_h7l-yP8GXHOv_v9OyNPh3jMGAQLraldAk-qPIgzQ/edit?gid=294927594#gid=294927594";
 
@@ -217,12 +218,19 @@ export const parseTicketLogCsv = (csvText: string): TicketLogData => {
 };
 
 export const fetchTicketLog = async (): Promise<TicketLogData> => {
-  const response = await fetch(`${MIRROR_CSV_URL}&cachebust=${Date.now()}`);
+  const response = await fetch(HOURLY_TICKET_LOG_API, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`Failed to load live ticket log (HTTP ${response.status})`);
   }
   const csvText = await response.text();
-  return parseTicketLogCsv(csvText);
+  if (!csvText.trim() || /<!doctype html|<html|ServiceLogin/i.test(csvText)) {
+    throw new Error("Live ticket log did not return CSV data");
+  }
+  const data = parseTicketLogCsv(csvText);
+  if (data.dates.length === 0) {
+    throw new Error("Live ticket log did not include any date columns");
+  }
+  return data;
 };
 
 /** UTC calendar-day key so we're comparing the sheet's date-only columns consistently regardless of viewer timezone. */
