@@ -5,6 +5,7 @@ import {
   computeWeekdayHourHeatmap,
   dateKey,
   fetchTicketLog,
+  losAngelesDateKey,
   parseCsv,
   parseDateCell,
   parseTicketLogCsv,
@@ -186,6 +187,15 @@ describe("parseDateCell - bare 'M/D' year inference", () => {
 });
 
 describe("computeHourlyStats", () => {
+  it("uses the California calendar day for the active column", () => {
+    const csv = buildCsv(["9/21/2026", "9/22/2026"], HOUR_LABELS);
+    const data = parseTicketLogCsv(csv);
+    const now = new Date("2026-09-22T02:00:00Z"); // 7 PM Sep 21 in Los Angeles
+
+    expect(losAngelesDateKey(now)).toBe("2026-09-21");
+    expect(dateKey(computeHourlyStats(data, 28, now).todayDate!)).toBe("2026-09-21");
+  });
+
   it("falls back to the last date column with any data when 'now' isn't in the sheet yet, keeps zeros distinct from unlogged hours, and correlates against history", () => {
     const csv = buildCsv(DATE_SERIALS, HOUR_SERIALS);
     const data = parseTicketLogCsv(csv);

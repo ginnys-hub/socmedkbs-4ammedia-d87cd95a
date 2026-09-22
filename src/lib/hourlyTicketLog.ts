@@ -237,6 +237,18 @@ export const fetchTicketLog = async (): Promise<TicketLogData> => {
 export const dateKey = (d: Date): string =>
   `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 
+/** Calendar date at the team's operating timezone, used for the active tracker column. */
+export const losAngelesDateKey = (d: Date): string => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value;
+  return `${value("year")}-${value("month")}-${value("day")}`;
+};
+
 export const formatDateLabel = (d: Date): string =>
   new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric" }).format(d);
 
@@ -312,7 +324,7 @@ export const computeHourlyStats = (
   // partially logged so far - a stray future entry (e.g. an overnight shift
   // accidentally logged into tomorrow's column) shouldn't make the tracker
   // skip past a mostly-complete "today" column to show that instead.
-  const todayKeyValue = dateKey(now);
+  const todayKeyValue = losAngelesDateKey(now);
   let todayIndex = dates.findIndex((d) => dateKey(d) === todayKeyValue);
 
   if (todayIndex === -1) {
