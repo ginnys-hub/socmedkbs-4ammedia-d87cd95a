@@ -400,15 +400,15 @@ const WeeklyScorecards = ({
             ))}
           </SelectContent>
         </Select>
-        {week?.pdf_url ? (
+        {week?.pdf_url || week?.image_url ? (
           <a
-            href={week.pdf_url}
+            href={week.pdf_url ?? week.image_url}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-soft transition-transform hover:-translate-y-0.5"
           >
             <Download className="h-4 w-4" />
-            Open PDF
+            View scorecard
           </a>
         ) : null}
       </div>

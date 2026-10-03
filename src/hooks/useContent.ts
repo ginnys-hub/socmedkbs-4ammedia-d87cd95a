@@ -48,6 +48,7 @@ export type ScorecardWeek = {
   label: string;
   is_current: boolean;
   pdf_url?: string;
+  image_url?: string;
 };
 
 export type ScorecardEntry = {
