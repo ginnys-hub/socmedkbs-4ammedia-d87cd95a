@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   dateKey,
+  fallbackSchedule,
   fetchTeamSchedule,
   isOffShift,
   parseScheduleDate,
@@ -25,6 +26,22 @@ const sampleCsv = [
 ].join("\n");
 
 describe("team schedule parsing", () => {
+  it("keeps the uploaded September 28 and October 5 schedule snapshots available during a feed outage", () => {
+    const schedule = fallbackSchedule();
+
+    expect(schedule.availableWeeks.map((week) => week.key)).toEqual(["2026-09-28", "2026-10-05"]);
+    expect(schedule.weekKey).toBe("2026-10-05");
+    expect(schedule.members.find((member) => member.name === "Alona Grace Jose")?.shifts).toEqual([
+      "5AM - 2PM",
+      "5AM - 2PM",
+      "5AM - 2PM",
+      "5AM - 2PM",
+      "5AM - 2PM",
+      "OFF",
+      "OFF",
+    ]);
+  });
+
   it("does not double-count copied date columns", () => {
     const csv = 'Team,,"Sep 14, 2026","Sep 14, 2026"\nCSR - OHA,Skill,Mon,Mon\nAgent,Chat,5AM - 2PM,1PM - 10PM';
     const schedule = parseTeamScheduleCsv(csv, new Date("2026-09-14T12:00:00Z"));
