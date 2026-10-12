@@ -26,11 +26,15 @@ const sampleCsv = [
 ].join("\n");
 
 describe("team schedule parsing", () => {
-  it("keeps the uploaded September 28 and October 5 schedule snapshots available during a feed outage", () => {
+  it("keeps the uploaded September and October schedule snapshots available during a feed outage", () => {
     const schedule = fallbackSchedule();
 
-    expect(schedule.availableWeeks.map((week) => week.key)).toEqual(["2026-09-28", "2026-10-05"]);
-    expect(schedule.weekKey).toBe("2026-10-05");
+    expect(schedule.availableWeeks.map((week) => week.key)).toEqual([
+      "2026-09-28",
+      "2026-10-05",
+      "2026-10-12",
+    ]);
+    expect(schedule.weekKey).toBe("2026-10-12");
     expect(schedule.members.find((member) => member.name === "Alona Grace Jose")?.shifts).toEqual([
       "5AM - 2PM",
       "5AM - 2PM",
@@ -38,6 +42,15 @@ describe("team schedule parsing", () => {
       "5AM - 2PM",
       "5AM - 2PM",
       "OFF",
+      "OFF",
+    ]);
+    expect(schedule.members.find((member) => member.name === "Ava Sue Reyes")?.shifts).toEqual([
+      "OFF",
+      "1PM - 10PM",
+      "1PM - 10PM",
+      "1PM - 10PM",
+      "1PM - 10PM",
+      "1PM - 10PM",
       "OFF",
     ]);
   });
