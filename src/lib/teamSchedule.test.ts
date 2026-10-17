@@ -86,6 +86,24 @@ describe("team schedule parsing", () => {
     expect(schedule.members[0].scheduledHours).toBe(32);
   });
 
+  it("uses a newer uploaded week when the live feed is behind", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(sampleCsv)));
+
+    const schedule = await fetchTeamSchedule();
+
+    expect(schedule.weekKey).toBe("2026-10-19");
+    expect(schedule.availableWeeks.at(-1)?.key).toBe("2026-10-19");
+    expect(schedule.days.map((day) => day.key)).toEqual([
+      "2026-10-19",
+      "2026-10-20",
+      "2026-10-21",
+      "2026-10-22",
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25",
+    ]);
+  });
+
   it.each([new Response("denied", { status: 503 }), new Response("<html>Login</html>"), new Response("invalid,csv")])("reports failed refreshes instead of pretending old data is fresh", async (response) => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response));
     await expect(fetchTeamSchedule()).rejects.toThrow();

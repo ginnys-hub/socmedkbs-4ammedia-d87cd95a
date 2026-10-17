@@ -303,6 +303,11 @@ export const fallbackSchedule = (selectedWeekKey?: string) =>
     selectedWeekKey ?? latestWeekKeyFromScheduleCsv(FALLBACK_SCHEDULE_CSV)
   );
 
+const mergeAvailableWeeks = (...weekGroups: ScheduleWeek[][]) =>
+  Array.from(
+    new Map(weekGroups.flat().map((week) => [week.key, week])).values()
+  ).sort((a, b) => a.key.localeCompare(b.key));
+
 export const fetchTeamSchedule = async (selectedWeekKey?: string): Promise<TeamScheduleData> => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 45000);
@@ -320,9 +325,25 @@ export const fetchTeamSchedule = async (selectedWeekKey?: string): Promise<TeamS
       throw new Error("Schedule load returned an unexpected response.");
     }
 
-    const schedule = parseTeamScheduleCsv(csvText, new Date(), selectedWeekKey);
-    if (!schedule.members.length) throw new Error("Schedule contains no team members.");
-    return schedule;
+    const liveSchedule = parseTeamScheduleCsv(csvText, new Date(), selectedWeekKey);
+    if (!liveSchedule.members.length) throw new Error("Schedule contains no team members.");
+
+    const uploadedSchedule = fallbackSchedule(selectedWeekKey);
+    const uploadedWeekKeys = new Set(uploadedSchedule.availableWeeks.map((week) => week.key));
+    const latestUploadedWeek = uploadedSchedule.availableWeeks.at(-1)?.key;
+    const latestLiveWeek = liveSchedule.availableWeeks.at(-1)?.key;
+    const shouldUseUploadedSchedule =
+      (selectedWeekKey ? uploadedWeekKeys.has(selectedWeekKey) : false) ||
+      (!selectedWeekKey && !!latestUploadedWeek && (!latestLiveWeek || latestUploadedWeek > latestLiveWeek));
+
+    const schedule = shouldUseUploadedSchedule ? uploadedSchedule : liveSchedule;
+    return {
+      ...schedule,
+      availableWeeks: mergeAvailableWeeks(
+        liveSchedule.availableWeeks,
+        uploadedSchedule.availableWeeks
+      ),
+    };
   } finally {
     clearTimeout(timeout);
   }
