@@ -36,7 +36,7 @@ describe("team schedule parsing", () => {
     ]);
     expect(schedule.weekKey).toBe("2026-10-12");
     expect(schedule.members.find((member) => member.name === "Alona Grace Jose")?.shifts).toEqual([
-      "5AM - 2PM",
+      "LWOP",
       "5AM - 2PM",
       "5AM - 2PM",
       "5AM - 2PM",
@@ -52,6 +52,15 @@ describe("team schedule parsing", () => {
       "1PM - 10PM",
       "1PM - 10PM",
       "OFF",
+    ]);
+    expect(schedule.members.find((member) => member.name === "Rande Delima")?.shifts).toEqual([
+      "10PM - 7AM",
+      "OFF",
+      "OFF",
+      "10PM - 7AM",
+      "10PM - 7AM",
+      "10PM - 7AM",
+      "10PM - 7AM",
     ]);
   });
 
