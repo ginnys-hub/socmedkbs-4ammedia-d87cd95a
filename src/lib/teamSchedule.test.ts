@@ -32,9 +32,9 @@ describe("team schedule parsing", () => {
     expect(schedule.availableWeeks.map((week) => week.key)).toEqual([
       "2026-09-28",
       "2026-10-05",
-      "2026-10-12",
+      "2026-10-19",
     ]);
-    expect(schedule.weekKey).toBe("2026-10-12");
+    expect(schedule.weekKey).toBe("2026-10-19");
     expect(schedule.members.find((member) => member.name === "Alona Grace Jose")?.shifts).toEqual([
       "LWOP",
       "5AM - 2PM",

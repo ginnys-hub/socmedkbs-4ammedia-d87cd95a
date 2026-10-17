@@ -273,7 +273,7 @@ export const parseTeamScheduleCsv = (
 
 // Current saved schedule snapshots, used while the live Google export is unavailable.
 const FALLBACK_SCHEDULE_CSV = [
-  '"Team Georgina",,"Sep 28, 2026","Sep 29, 2026","Sep 30, 2026","Oct 1, 2026","Oct 2, 2026","Oct 3, 2026","Oct 4, 2026","Oct 5, 2026","Oct 6, 2026","Oct 7, 2026","Oct 8, 2026","Oct 9, 2026","Oct 10, 2026","Oct 11, 2026","Oct 12, 2026","Oct 13, 2026","Oct 14, 2026","Oct 15, 2026","Oct 16, 2026","Oct 17, 2026","Oct 18, 2026"',
+  '"Team Georgina",,"Sep 28, 2026","Sep 29, 2026","Sep 30, 2026","Oct 1, 2026","Oct 2, 2026","Oct 3, 2026","Oct 4, 2026","Oct 5, 2026","Oct 6, 2026","Oct 7, 2026","Oct 8, 2026","Oct 9, 2026","Oct 10, 2026","Oct 11, 2026","Oct 19, 2026","Oct 20, 2026","Oct 21, 2026","Oct 22, 2026","Oct 23, 2026","Oct 24, 2026","Oct 25, 2026"',
   '"CSR - OHA","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
   '"Alona Grace Jose","FB Chat+Comment Reply","5AM - 2PM","5AM - 2PM","LWOP","LWOP","LWOP","OFF","OFF","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","OFF","LWOP","5AM - 2PM","5AM - 2PM","5AM - 2PM","5AM - 2PM","OFF","OFF"',
   '"Ava Sue Reyes","FB Moderator and Chat+Comment Reply","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","LWOP","OFF","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","5AM - 2PM","OFF","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF"',
