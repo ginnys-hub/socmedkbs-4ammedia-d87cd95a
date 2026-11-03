@@ -12,6 +12,7 @@ import {
   FolderTree,
   BookMarked,
   ChevronDown,
+  ExternalLink,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -74,6 +75,16 @@ const Layout = () => {
                 <span className="hidden sm:inline">{label}</span>
               </NavLink>
             ))}
+
+            <a
+              href="https://4amcsrleaverequests.georginagavan.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="hidden sm:inline">Leave Requests</span>
+            </a>
 
             <NavDropdown
               label="Macros"
