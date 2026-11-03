@@ -43,6 +43,7 @@ type MonthlyEntry = ScorecardEntry & {
 const MONTHLY_REPORTS: Record<string, string> = {
   "2026-08": "/scorecards/social-media-team-monthly-report-august-2026.pdf",
   "2026-09": "/scorecards/social-media-team-monthly-report-september-2026.png",
+  "2026-10": "/scorecards/social-media-team-monthly-report-october-2026.pdf",
 };
 
 const monthIdFromDate = (date: string) => date.slice(0, 7);
