@@ -76,11 +76,11 @@ describe("team schedule parsing", () => {
     ]);
     expect(schedule.members.find((member) => member.name === "Jessel Lebosada")?.shifts).toEqual([
       "2PM - 11PM",
-      "2PM - 11PM",
-      "2PM - 11PM",
-      "2PM - 11PM",
-      "2PM - 11PM",
       "OFF",
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
       "OFF",
     ]);
     expect(schedule.members.find((member) => member.name === "Rande Delima")?.shifts).toEqual([
