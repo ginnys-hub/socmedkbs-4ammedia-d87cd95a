@@ -79,7 +79,7 @@ describe("team schedule parsing", () => {
       "2PM - 11PM",
       "2PM - 11PM",
       "2PM - 11PM",
-      "2PM - 6PM",
+      "2PM - 11PM",
       "OFF",
       "OFF",
     ]);
@@ -91,6 +91,17 @@ describe("team schedule parsing", () => {
       "10PM - 7AM",
       "10PM - 7AM",
       "10PM - 7AM",
+    ]);
+
+    const previousWeek = fallbackSchedule("2026-11-02");
+    expect(previousWeek.members.find((member) => member.name === "Jessel Lebosada")?.shifts).toEqual([
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 6PM",
+      "OFF",
+      "OFF",
     ]);
   });
 
