@@ -79,7 +79,7 @@ describe("team schedule parsing", () => {
       "2PM - 11PM",
       "2PM - 11PM",
       "2PM - 11PM",
-      "2PM - 11PM",
+      "2PM - 6PM",
       "OFF",
       "OFF",
     ]);

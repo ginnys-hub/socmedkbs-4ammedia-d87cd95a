@@ -280,7 +280,7 @@ const NOVEMBER_9_TO_15 = {
   "Ava Sue Reyes": ["OFF", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM", "OFF"],
   "Jezzalyn Tarranza": ["10AM - 7PM", "10AM - 7PM", "10AM - 7PM", "OFF", "OFF", "10AM - 7PM", "10AM - 7PM"],
   "Jayson Aparece": ["1PM - 10PM", "1PM - 10PM", "OFF", "OFF", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM"],
-  "Jessel Lebosada": ["2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "OFF", "OFF"],
+  "Jessel Lebosada": ["2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 6PM", "OFF", "OFF"],
   "Rande Delima": ["10PM - 7AM", "OFF", "OFF", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM"],
 } as const;
 
