@@ -272,6 +272,18 @@ export const parseTeamScheduleCsv = (
 };
 
 // Current saved schedule snapshots, used while the live Google export is unavailable.
+const NOVEMBER_9_TO_15 = {
+  "Team Georgina": ["Nov 9, 2026", "Nov 10, 2026", "Nov 11, 2026", "Nov 12, 2026", "Nov 13, 2026", "Nov 14, 2026", "Nov 15, 2026"],
+  "CSR - OHA": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  "CSR - OTHER BRANDS": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  "Alona Grace Jose": ["LWOP", "5AM - 2PM", "5AM - 2PM", "5AM - 2PM", "5AM - 2PM", "OFF", "OFF"],
+  "Ava Sue Reyes": ["OFF", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM", "OFF"],
+  "Jezzalyn Tarranza": ["10AM - 7PM", "10AM - 7PM", "10AM - 7PM", "OFF", "OFF", "10AM - 7PM", "10AM - 7PM"],
+  "Jayson Aparece": ["1PM - 10PM", "1PM - 10PM", "OFF", "OFF", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM"],
+  "Jessel Lebosada": ["2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "OFF", "OFF"],
+  "Rande Delima": ["10PM - 7AM", "OFF", "OFF", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM"],
+} as const;
+
 const FALLBACK_SCHEDULE_CSV = [
   '"Team Georgina",,"Sep 28, 2026","Sep 29, 2026","Sep 30, 2026","Oct 1, 2026","Oct 2, 2026","Oct 3, 2026","Oct 4, 2026","Oct 5, 2026","Oct 6, 2026","Oct 7, 2026","Oct 8, 2026","Oct 9, 2026","Oct 10, 2026","Oct 11, 2026","Oct 19, 2026","Oct 20, 2026","Oct 21, 2026","Oct 22, 2026","Oct 23, 2026","Oct 24, 2026","Oct 25, 2026","Oct 26, 2026","Oct 27, 2026","Oct 28, 2026","Oct 29, 2026","Oct 30, 2026","Oct 31, 2026","Nov 1, 2026","Nov 2, 2026","Nov 3, 2026","Nov 4, 2026","Nov 5, 2026","Nov 6, 2026","Nov 7, 2026","Nov 8, 2026"',
   '"CSR - OHA","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
@@ -285,7 +297,13 @@ const FALLBACK_SCHEDULE_CSV = [
   '"Jessel Lebosada","FB Moderator","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","OFF","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","1PM - 10PM","OFF","OFF","2PM - 11PM","2PM - 11PM","2PM - 11PM","2PM - 11PM","2PM - 11PM","OFF","OFF"',
   '"Rande Delima","FB Moderator and Chat+Comment Reply","2AM - 11AM","OFF","OFF","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM","OFF","OFF","2AM - 11AM","2AM - 11AM","2AM - 11AM","2AM - 11AM","10PM - 7AM","OFF","OFF","10PM - 7AM","10PM - 7AM","10PM - 7AM","10PM - 7AM","10PM - 7AM","OFF","OFF","10PM - 7AM","10PM - 7AM","10PM - 7AM","10PM - 7AM","10PM - 7AM","OFF","OFF","10PM - 7AM","10PM - 7AM","10PM - 7AM","10PM - 7AM"',
   '"TOTAL CSRs ON DUTY",,"5","5","3","3","4","4","2","5","5","3","3","4","4","2","4","5","4","4","5","4","3","4","5","4","4","5","4","3","4","5","4","4","5","4","3"',
-].join("\n");
+]
+  .map((row) => {
+    const name = row.match(/^"([^"]*)"/)?.[1];
+    const week = name ? NOVEMBER_9_TO_15[name as keyof typeof NOVEMBER_9_TO_15] : undefined;
+    return week ? `${row},${week.map((value) => `"${value}"`).join(",")}` : row;
+  })
+  .join("\n");
 
 const latestWeekKeyFromScheduleCsv = (csvText: string) => {
   const rows = parseCsv(csvText);

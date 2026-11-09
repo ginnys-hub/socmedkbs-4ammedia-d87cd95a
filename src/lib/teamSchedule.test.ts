@@ -35,14 +35,15 @@ describe("team schedule parsing", () => {
       "2026-10-19",
       "2026-10-26",
       "2026-11-02",
+      "2026-11-09",
     ]);
-    expect(schedule.weekKey).toBe("2026-11-02");
+    expect(schedule.weekKey).toBe("2026-11-09");
     expect(schedule.members.find((member) => member.name === "Alona Grace Jose")?.shifts).toEqual([
-      "5AM - 2PM",
-      "5AM - 2PM",
-      "5AM - 2PM",
       "LWOP",
-      "LWOP",
+      "5AM - 2PM",
+      "5AM - 2PM",
+      "5AM - 2PM",
+      "5AM - 2PM",
       "OFF",
       "OFF",
     ]);
@@ -66,12 +67,12 @@ describe("team schedule parsing", () => {
     ]);
     expect(schedule.members.find((member) => member.name === "Jezzalyn Tarranza")?.shifts).toEqual([
       "10AM - 7PM",
+      "10AM - 7PM",
+      "10AM - 7PM",
       "OFF",
       "OFF",
       "10AM - 7PM",
       "10AM - 7PM",
-      "5AM - 2PM",
-      "5AM - 2PM",
     ]);
     expect(schedule.members.find((member) => member.name === "Jessel Lebosada")?.shifts).toEqual([
       "2PM - 11PM",
@@ -120,16 +121,16 @@ describe("team schedule parsing", () => {
 
     const schedule = await fetchTeamSchedule();
 
-    expect(schedule.weekKey).toBe("2026-11-02");
-    expect(schedule.availableWeeks.at(-1)?.key).toBe("2026-11-02");
+    expect(schedule.weekKey).toBe("2026-11-09");
+    expect(schedule.availableWeeks.at(-1)?.key).toBe("2026-11-09");
     expect(schedule.days.map((day) => day.key)).toEqual([
-      "2026-11-02",
-      "2026-11-03",
-      "2026-11-04",
-      "2026-11-05",
-      "2026-11-06",
-      "2026-11-07",
-      "2026-11-08",
+      "2026-11-09",
+      "2026-11-10",
+      "2026-11-11",
+      "2026-11-12",
+      "2026-11-13",
+      "2026-11-14",
+      "2026-11-15",
     ]);
   });
 
