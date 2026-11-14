@@ -36,10 +36,11 @@ describe("team schedule parsing", () => {
       "2026-10-26",
       "2026-11-02",
       "2026-11-09",
+      "2026-11-16",
     ]);
-    expect(schedule.weekKey).toBe("2026-11-09");
+    expect(schedule.weekKey).toBe("2026-11-16");
     expect(schedule.members.find((member) => member.name === "Alona Grace Jose")?.shifts).toEqual([
-      "LWOP",
+      "5AM - 2PM",
       "5AM - 2PM",
       "5AM - 2PM",
       "5AM - 2PM",
@@ -49,11 +50,11 @@ describe("team schedule parsing", () => {
     ]);
     expect(schedule.members.find((member) => member.name === "Ava Sue Reyes")?.shifts).toEqual([
       "OFF",
+      "LWOP",
       "1PM - 10PM",
       "1PM - 10PM",
-      "1PM - 10PM",
-      "1PM - 10PM",
-      "1PM - 10PM",
+      "LWOP",
+      "LWOP",
       "OFF",
     ]);
     expect(schedule.members.find((member) => member.name === "Jayson Aparece")?.shifts).toEqual([
@@ -76,11 +77,11 @@ describe("team schedule parsing", () => {
     ]);
     expect(schedule.members.find((member) => member.name === "Jessel Lebosada")?.shifts).toEqual([
       "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
+      "2PM - 11PM",
       "OFF",
-      "2PM - 11PM",
-      "2PM - 11PM",
-      "2PM - 11PM",
-      "2PM - 11PM",
       "OFF",
     ]);
     expect(schedule.members.find((member) => member.name === "Rande Delima")?.shifts).toEqual([
@@ -132,16 +133,16 @@ describe("team schedule parsing", () => {
 
     const schedule = await fetchTeamSchedule();
 
-    expect(schedule.weekKey).toBe("2026-11-09");
-    expect(schedule.availableWeeks.at(-1)?.key).toBe("2026-11-09");
+    expect(schedule.weekKey).toBe("2026-11-16");
+    expect(schedule.availableWeeks.at(-1)?.key).toBe("2026-11-16");
     expect(schedule.days.map((day) => day.key)).toEqual([
-      "2026-11-09",
-      "2026-11-10",
-      "2026-11-11",
-      "2026-11-12",
-      "2026-11-13",
-      "2026-11-14",
-      "2026-11-15",
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22",
     ]);
   });
 

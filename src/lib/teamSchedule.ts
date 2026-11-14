@@ -284,6 +284,18 @@ const NOVEMBER_9_TO_15 = {
   "Rande Delima": ["10PM - 7AM", "OFF", "OFF", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM"],
 } as const;
 
+const NOVEMBER_16_TO_22 = {
+  "Team Georgina": ["Nov 16, 2026", "Nov 17, 2026", "Nov 18, 2026", "Nov 19, 2026", "Nov 20, 2026", "Nov 21, 2026", "Nov 22, 2026"],
+  "CSR - OHA": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  "CSR - OTHER BRANDS": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  "Alona Grace Jose": ["5AM - 2PM", "5AM - 2PM", "5AM - 2PM", "5AM - 2PM", "5AM - 2PM", "OFF", "OFF"],
+  "Ava Sue Reyes": ["OFF", "LWOP", "1PM - 10PM", "1PM - 10PM", "LWOP", "LWOP", "OFF"],
+  "Jezzalyn Tarranza": ["10AM - 7PM", "10AM - 7PM", "10AM - 7PM", "OFF", "OFF", "10AM - 7PM", "10AM - 7PM"],
+  "Jayson Aparece": ["1PM - 10PM", "1PM - 10PM", "OFF", "OFF", "1PM - 10PM", "1PM - 10PM", "1PM - 10PM"],
+  "Jessel Lebosada": ["2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "2PM - 11PM", "OFF", "OFF"],
+  "Rande Delima": ["10PM - 7AM", "OFF", "OFF", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM", "10PM - 7AM"],
+} as const;
+
 const FALLBACK_SCHEDULE_CSV = [
   '"Team Georgina",,"Sep 28, 2026","Sep 29, 2026","Sep 30, 2026","Oct 1, 2026","Oct 2, 2026","Oct 3, 2026","Oct 4, 2026","Oct 5, 2026","Oct 6, 2026","Oct 7, 2026","Oct 8, 2026","Oct 9, 2026","Oct 10, 2026","Oct 11, 2026","Oct 19, 2026","Oct 20, 2026","Oct 21, 2026","Oct 22, 2026","Oct 23, 2026","Oct 24, 2026","Oct 25, 2026","Oct 26, 2026","Oct 27, 2026","Oct 28, 2026","Oct 29, 2026","Oct 30, 2026","Oct 31, 2026","Nov 1, 2026","Nov 2, 2026","Nov 3, 2026","Nov 4, 2026","Nov 5, 2026","Nov 6, 2026","Nov 7, 2026","Nov 8, 2026"',
   '"CSR - OHA","Priority Skill","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun"',
@@ -300,8 +312,10 @@ const FALLBACK_SCHEDULE_CSV = [
 ]
   .map((row) => {
     const name = row.match(/^"([^"]*)"/)?.[1];
-    const week = name ? NOVEMBER_9_TO_15[name as keyof typeof NOVEMBER_9_TO_15] : undefined;
-    return week ? `${row},${week.map((value) => `"${value}"`).join(",")}` : row;
+    return [NOVEMBER_9_TO_15, NOVEMBER_16_TO_22].reduce((expandedRow, week) => {
+      const values = name ? week[name as keyof typeof week] : undefined;
+      return values ? `${expandedRow},${values.map((value) => `"${value}"`).join(",")}` : expandedRow;
+    }, row);
   })
   .join("\n");
 
